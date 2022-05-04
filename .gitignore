@@ -6,8 +6,7 @@
 *.obj
 *.pdb
 
-#late download
-*.dll
+
 
 #not binary but engine
 *.sln
@@ -18,3 +17,5 @@ OpenGL/.vs/
 OpenGL/Debug/
 OpenGL/OpenGL/Debug/
 OpenGL/OpenGL/x64/
+OpenGL/FootballManager/Debug/
+OpenGL/FootballManager/x64/
