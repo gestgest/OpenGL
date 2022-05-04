@@ -1,0 +1,20 @@
+#binary
+*.exe
+*.suo
+*.idb
+*.ipch
+*.obj
+*.pdb
+
+#late download
+*.dll
+
+#not binary but engine
+*.sln
+*.user
+
+#folder
+OpenGL/.vs/
+OpenGL/Debug/
+OpenGL/OpenGL/Debug/
+OpenGL/OpenGL/x64/
