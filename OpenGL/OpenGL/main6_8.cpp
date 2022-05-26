@@ -1,4 +1,5 @@
 #include <GL/glut.h>
+float x = 0, y = 0;
 
 void InitLight() {
 	GLfloat mat_diffuse[] = { 0.5, 0.4, 0.3, 1.0 };
@@ -28,19 +29,42 @@ void MyDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	//핵심 코드[카메라 변환] uvw, 카메라위치, 카메라 바라보는 지역,  어뎁터[벡터느낌 1,1은 45, 1,0은 90]
-	gluLookAt(0.0, 0.0, 1.0,
-		0.0, 0.0, 0.0,
-		1.0, 1.0, 0.0);  //시점변환
+	//핵심 코드[카메라 변환] uvw : 카메라위치, 카메라 바라보는 지역,  어뎁터[벡터느낌 1,1은 45, 1,0은 90]
+	gluLookAt(x, y, 1.0,
+		x, y, 0.0,
+		0.0, 1.0, 0.0);  //시점변환
 	glutSolidTeapot(0.5);
 	glFlush();
 }
 
+//paint
 void MyReshape(int w, int h) {
 	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+}
+
+void MyKeyboardEvent(int key, int mouseX, int mouseY) {
+	switch (key) {
+	case GLUT_KEY_UP:
+		y -= 0.1;
+		glutPostRedisplay();
+		break;
+	case GLUT_KEY_DOWN:
+		y += 0.1;
+		glutPostRedisplay();
+		break;
+	case GLUT_KEY_LEFT:
+		x += 0.1;
+		glutPostRedisplay();
+		break;
+	case GLUT_KEY_RIGHT:
+		x -= 0.1;
+		glutPostRedisplay();
+		break;
+		
+	}
 }
 
 int main(int argc, char** argv) {
@@ -54,6 +78,7 @@ int main(int argc, char** argv) {
 
 	glutDisplayFunc(MyDisplay);
 	glutReshapeFunc(MyReshape);
+	glutSpecialFunc(MyKeyboardEvent);
 	glutMainLoop();
 	return 0;
 

@@ -44,9 +44,9 @@ void MyDisplay() {
 	glPushMatrix();
 
 		glRotatef(t / 10, 0.0, 1.0, 0.0);
-		glTranslatef(-0.3, 0.0, 0.0);
+		glTranslatef(-0.5, 0.0, 0.0);
 
-		//지구 자전
+		//금성 자전
 		//glRotatef((GLfloat)Time, 0.0, 1.0, 0.0);
 		glRotatef(t, 0.0, 1.0, 0.0);
 
@@ -72,7 +72,7 @@ void MyKeyboard(unsigned char key, int x, int y) {
 }
 
 void MyIdleFunc() {
-	t += 0.1;
+	t += 0.2;
 	glutPostRedisplay();
 }
 
