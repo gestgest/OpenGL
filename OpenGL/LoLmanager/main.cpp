@@ -1,4 +1,5 @@
-//FM
+//롤 FM 게임
+
 #include <GL/glut.h>
 //해상도에서 4/5를 해야 현 해상도가 나온다.
 #define WINDOW_WIDTH 1920

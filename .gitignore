@@ -5,17 +5,19 @@
 *.ipch
 *.obj
 *.pdb
+*.tlog
+*.ilk
+*.db
 
 
 
 #not binary but engine
 *.sln
 *.user
+*.log
+
+#폴더
+.vs/
+
 
 #folder
-OpenGL/.vs/
-OpenGL/Debug/
-OpenGL/OpenGL/Debug/
-OpenGL/OpenGL/x64/
-OpenGL/FootballManager/Debug/
-OpenGL/FootballManager/x64/
