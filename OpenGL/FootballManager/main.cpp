@@ -1,30 +1,53 @@
-//FM
-#include <GL/glut.h>
-//해상도에서 4/5를 해야 현 해상도가 나온다.
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
-#define GAME_WIDTH 800
-#define GAME_HEIGHT 600
+#include <GLFW/glfw3.h>
+#include <iostream>
 
-//대충 능력치
-//1~5
-
-void MyDisplay()
+void error_callback(int error, const char* description)
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-	glBegin(GL_POLYGON);
-	glEnd();
-	glFlush();
+    std::cerr << "Error: " << description << std::endl;
 }
 
-int main(int argc, char** argv)
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	glutInit(&argc, argv);               //GLUT 윈도우 함수
-	glutInitWindowSize(GAME_WIDTH, GAME_HEIGHT);
-	glutInitWindowPosition((WINDOW_WIDTH * 4 / 5 - GAME_WIDTH) / 2, (WINDOW_HEIGHT * 4 / 5 - GAME_HEIGHT) / 2);
-	glutCreateWindow("OpenGL Drawing Example");
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
 
-	glutDisplayFunc(MyDisplay);
-	glutMainLoop();
-	return 0;
+int main()
+{
+    GLFWwindow* window;
+
+    // GLFW 라이브러리 초기화
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+
+    // 윈도우 생성
+    window = glfwCreateWindow(640, 480, "My Title", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+
+    // 윈도우 이벤트 콜백 등록
+    glfwSetErrorCallback(error_callback);
+    glfwSetKeyCallback(window, key_callback);
+
+    // OpenGL 컨텍스트 생성
+    glfwMakeContextCurrent(window);
+
+    // 렌더링 루프
+    while (!glfwWindowShouldClose(window))
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // 렌더링 작업
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    // 종료
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    exit(EXIT_SUCCESS);
 }

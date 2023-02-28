@@ -83,7 +83,6 @@ int main(int argc, char** argv) {
     glLoadIdentity();
     glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
 
-    glClear(GL_COLOR_BUFFER_BIT);
 
     glutDisplayFunc(MyDisplay);
 
