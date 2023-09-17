@@ -16,11 +16,11 @@ int main()
 {
     GLFWwindow* window;
 
-    // GLFW ¶óÀÌºê·¯¸® ÃÊ±âÈ­
+    // GLFW ë¼ì´ë¸ŒëŸ¬ë¦¬ ì´ˆê¸°í™”
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-    // À©µµ¿ì »ı¼º
+    // ìœˆë„ìš° ìƒì„±
     window = glfwCreateWindow(640, 480, "My Title", NULL, NULL);
     if (!window)
     {
@@ -28,25 +28,30 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    // À©µµ¿ì ÀÌº¥Æ® Äİ¹é µî·Ï
+    // ìœˆë„ìš° ì´ë²¤íŠ¸ ì½œë°± ë“±ë¡
     glfwSetErrorCallback(error_callback);
     glfwSetKeyCallback(window, key_callback);
 
-    // OpenGL ÄÁÅØ½ºÆ® »ı¼º
+    // OpenGL ì»¨í…ìŠ¤íŠ¸ ìƒì„±
     glfwMakeContextCurrent(window);
 
-    // ·»´õ¸µ ·çÇÁ
+    // ë Œë”ë§ ë£¨í”„
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // ·»´õ¸µ ÀÛ¾÷
+        // ë Œë”ë§ ì‘ì—…
+        glBegin(GL_TRIANGLES);
+        glVertex2f(-0.5f, -0.5f);
+        glVertex2f(-0.5f, 0.5f);
+        glVertex2f(0.5f, 0.5f);
+        glEnd();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // Á¾·á
+    // ì¢…ë£Œ
     glfwDestroyWindow(window);
     glfwTerminate();
     exit(EXIT_SUCCESS);
