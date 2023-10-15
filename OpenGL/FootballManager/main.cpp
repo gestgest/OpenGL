@@ -1,3 +1,4 @@
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 
@@ -34,6 +35,15 @@ int main()
 
     // OpenGL 컨텍스트 생성
     glfwMakeContextCurrent(window);
+
+    if (!glewInit() != GLEW_OK) {
+        std::cout << "error" << std::endl;
+    }
+
+    unsigned int buffer;
+    glGenBuffers(1, &buffer);
+    //std::cout << glGetString(GL_VERSION) << std::endl;
+
 
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
