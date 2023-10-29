@@ -36,13 +36,23 @@ int main()
     // OpenGL 컨텍스트 생성
     glfwMakeContextCurrent(window);
 
-    if (!glewInit() != GLEW_OK) {
+    if (glewInit() != GLEW_OK) {
         std::cout << "error" << std::endl;
+        exit(EXIT_FAILURE);
     }
+    //std::cout << glGetString(GL_VERSION) << std::endl; 버전확인
 
-    unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    //std::cout << glGetString(GL_VERSION) << std::endl;
+    float pos[6] = {
+        -0.5f, -0.5f,
+        -0.5f, 0.5f,
+        0.5f, 0.5f
+    };
+
+    unsigned int buffer; //GLuint
+    
+    glGenBuffers(1, &buffer); //(버퍼 갯수, 버퍼 변수)
+    glBindBuffer(GL_ARRAY_BUFFER, buffer); //정점에 대한 데이터를 생성할 버퍼로 할당
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pos) * sizeof(float), pos, GL_STATIC_DRAW);
 
 
     // 렌더링 루프
@@ -50,12 +60,17 @@ int main()
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // 렌더링 작업
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        /* 렌더링 작업
         glBegin(GL_TRIANGLES);
         glVertex2f(-0.5f, -0.5f);
         glVertex2f(-0.5f, 0.5f);
         glVertex2f(0.5f, 0.5f);
         glEnd();
+        */
+
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
