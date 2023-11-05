@@ -54,6 +54,15 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, buffer); //정점에 대한 데이터를 생성할 버퍼로 할당
     glBufferData(GL_ARRAY_BUFFER, sizeof(pos) * sizeof(float), pos, GL_STATIC_DRAW);
 
+    //정점 활성화
+    glEnableVertexAttribArray(0);
+
+    //버퍼안에 있는 정보의 속성을 알려주는 함수
+    //몇번째 index 속성, 단위 size (x,y면 2개), type, 정규화여부, 정점 크기, 시작 위치
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+
+    //버퍼 메모리 복원
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
 
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
