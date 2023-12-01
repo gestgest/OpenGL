@@ -2,6 +2,20 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+static int compileShader(unsigned char type, const std::string& source)
+{
+    //?
+    unsigned char id = glCreateShader(type);
+}
+
+//정적으로 선언 [정점 셰이더, 프래그먼트 셰이더]
+static int createShader(const std::string& vertexShader, const std::string& fragmentShader)
+{
+    //프로그램을 만든다.
+    unsigned char program = glCreateProgram();
+    unsigned char vs = compileShader(GL_VERTEX_SHADER, vertexShader);
+}
+
 void error_callback(int error, const char* description)
 {
     std::cerr << "Error: " << description << std::endl;
