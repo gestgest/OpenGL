@@ -1,6 +1,42 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+static void InputShader(const std::string& filepath)
+{
+    std::ifstream stream(filepath);
+
+    enum class ShaderType 
+    {
+        NONE = -1,
+        VERTEX= 0,
+        FRAGMENT = 1,
+    };
+
+    ShaderType type = ShaderType::NONE;
+    std::string line;
+    std::stringstream ss[2];
+    
+    
+    while (getline(stream, line) )
+    {
+        if (line.find("#shader") != std::string::npos)
+        {
+            if (line.find("#vertex") != std::string::npos)
+            {
+
+            }
+            else if (line.find("#fragment") != std::string::npos)
+            {
+
+            }
+        }
+    }
+
+}
 
 static unsigned int compileShader(unsigned int type, const std::string& source)
 {
