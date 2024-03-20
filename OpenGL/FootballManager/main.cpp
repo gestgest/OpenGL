@@ -5,9 +5,17 @@
 #include <string>
 #include <sstream>
 
-static void InputShader(const std::string& filepath)
+//참고로 한글 출력은 안됨
+struct ShaderSource 
+{
+    std::string vertexSource;
+    std::string fragmentSource;
+};
+
+static ShaderSource InputShader(const std::string& filepath)
 {
     std::ifstream stream(filepath);
+    //std::cout << filepath << '\n';
 
     enum class ShaderType 
     {
@@ -21,21 +29,28 @@ static void InputShader(const std::string& filepath)
     std::stringstream ss[2];
     
     
-    while (getline(stream, line) )
+    while (getline(stream, line, '\r'))
     {
         if (line.find("#shader") != std::string::npos)
         {
-            if (line.find("#vertex") != std::string::npos)
+            if (line.find("vertex") != std::string::npos)
             {
-
+                type = ShaderType::VERTEX;
             }
-            else if (line.find("#fragment") != std::string::npos)
+            else if (line.find("fragment") != std::string::npos)
             {
-
+                type = ShaderType::FRAGMENT;
+            }
+        }
+        else
+        {
+            if (type != ShaderType::NONE) {
+                //스트림에다가 명령어 코드 넣는 거
+                ss[(int)type] << line << '\n';
             }
         }
     }
-
+    return { ss[0].str(), ss[1].str()};
 }
 
 static unsigned int compileShader(unsigned int type, const std::string& source)
@@ -50,7 +65,6 @@ static unsigned int compileShader(unsigned int type, const std::string& source)
     //에러 핸들링
     int result; 
     glGetShaderiv(id, GL_COMPILE_STATUS, &result); //result가 반환함
-    //std::cout << id << std::endl;
     if (result == GL_FALSE) //셰이더 컴파일 실패
     {
         int length;
@@ -63,7 +77,6 @@ static unsigned int compileShader(unsigned int type, const std::string& source)
         
         glGetShaderInfoLog(id, length, &length, message); //쉐이더 정보 로그를 가져와라 => 실패 로그
 
-        //여담으로 한글쓰면 오류난다.
         std::cout << "Compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "Shader Error" << std::endl;
         std::cout << message << std::endl;
 
@@ -91,6 +104,7 @@ static unsigned int createShader(const std::string& vertexShader, const std::str
 
     int linkStatus;
     glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
+
     if (linkStatus != GL_TRUE) {
         // 프로그램 링크 오류 처리 코드
         int length;
@@ -174,27 +188,12 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //쉐이더 생성
-    const std::string vertexShader =
-        "#version 330 core\n"
-        "\n"
-        "layout(location = 0) in vec3 position;"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-        "}\0";
+    //const std::string vertexShader;
+    //const std::string fragmentShader;
 
-    const std::string fragmentShader =
-        "#version 330 core\n"
-        "\n"
-        "layout(location = 0) out vec4 color;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   color = vec4(0.5, 0.0, 0.0, 1.0);\n"
-        "}\0";
+    ShaderSource shader_source = InputShader("./basic.shader");
 
-    unsigned int shader = createShader(vertexShader, fragmentShader);
+    unsigned int shader = createShader(shader_source.vertexSource, shader_source.fragmentSource);
     glUseProgram(shader);
 
     // 렌더링 루프
