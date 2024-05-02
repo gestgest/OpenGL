@@ -189,7 +189,7 @@ int main()
 
     glGenBuffers(1, &ibo); //(버퍼 갯수, 버퍼 변수)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); //버퍼
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_pos) * sizeof(unsigned), index_pos, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_pos) * sizeof(unsigned int), index_pos, GL_STATIC_DRAW);
 
 
     //정점 활성화
