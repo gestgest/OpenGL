@@ -165,10 +165,17 @@ int main()
     }
     //std::cout << glGetString(GL_VERSION) << std::endl; // 버전확인
 
-    float pos[6] = {
-        -0.5f, -0.5f,
+    //수학 그래프 기준 x,y축
+    float pos[8] = {
         -0.5f, 0.5f,
-        0.5f, 0.5f
+        -0.5f, -0.5f,
+        0.5f, 0.5f,
+        0.5f, -0.5f,
+    };
+
+    unsigned int index_pos[6] = {
+        0, 1, 2,
+        1, 2, 3
     };
 
     unsigned int buffer; //GLuint
@@ -176,6 +183,14 @@ int main()
     glGenBuffers(1, &buffer); //(버퍼 갯수, 버퍼 변수)
     glBindBuffer(GL_ARRAY_BUFFER, buffer); //정점에 대한 데이터를 생성할 버퍼로 할당
     glBufferData(GL_ARRAY_BUFFER, sizeof(pos) * sizeof(float), pos, GL_STATIC_DRAW);
+
+
+    unsigned int ibo; //GLuint
+
+    glGenBuffers(1, &ibo); //(버퍼 갯수, 버퍼 변수)
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); //버퍼
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_pos) * sizeof(unsigned), index_pos, GL_STATIC_DRAW);
+
 
     //정점 활성화
     glEnableVertexAttribArray(0);
@@ -187,21 +202,21 @@ int main()
     //버퍼 메모리 복원
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    //쉐이더 생성
-    //const std::string vertexShader;
-    //const std::string fragmentShader;
 
+    //쉐이더 생성
     ShaderSource shader_source = InputShader("./basic.shader");
 
     unsigned int shader = createShader(shader_source.vertexSource, shader_source.fragmentSource);
     glUseProgram(shader);
+
 
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         /* 렌더링 작업
         glBegin(GL_TRIANGLES);
