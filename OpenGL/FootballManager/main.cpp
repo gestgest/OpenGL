@@ -5,6 +5,25 @@
 #include <string>
 #include <sstream>
 
+#define ASSERT(x) if (!(x)) __debugbreak();
+
+//그 전에 있던 에러 코드 배열? 초기화 함수
+static void glClearError()
+{
+    while (glGetError() != GL_NO_ERROR);
+}
+
+//에러출력 함수
+static bool glCheckError()
+{
+    while (GLenum error = glGetError())
+    {
+        std::cout << "Error Code : [" << error << "]\n";
+        return false;
+    }
+    return true;
+}
+
 //참고로 한글 출력은 안됨
 struct ShaderSource 
 {
@@ -215,8 +234,10 @@ int main()
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glClearError();
         //glDrawArrays(GL_TRIANGLES, 0, 6);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        ASSERT(glCheckError());
 
         /* 렌더링 작업
         glBegin(GL_TRIANGLES);
