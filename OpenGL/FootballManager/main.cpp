@@ -234,6 +234,10 @@ int main()
     unsigned int shader = createShader(shader_source.vertexSource, shader_source.fragmentSource);
     glUseProgram(shader);
 
+    int location = glGetUniformLocation(shader, "u_color");
+    ASSERT(location != -1)
+    glUniform4f(location, 0.0f, 0.5f, 1.0f, 1.0f);
+
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
     {
