@@ -7,6 +7,11 @@
 
 #define ASSERT(x) if (!(x)) __debugbreak();
 
+//초기화 -> x의 함수를 부르고 -> 체크
+#define GLCHECK(x) glClearError();\
+    x;\
+    ASSERT(glCheckError(#x, __FILE__, __LINE__));
+
 //그 전에 있던 에러 코드 배열? 초기화 함수
 static void glClearError()
 {
@@ -14,11 +19,12 @@ static void glClearError()
 }
 
 //에러출력 함수
-static bool glCheckError()
+static bool glCheckError(const char* function_name, const char* file_name, int line)
 {
     while (GLenum error = glGetError())
     {
-        std::cout << "Error Code : [" << error << "]\n";
+        std::cout << "Error Code [" << error << "] \nfilename : " << function_name 
+            << "\nfile_name : " << file_name << "\nline : " << line << "\n";
         return false;
     }
     return true;
@@ -228,16 +234,13 @@ int main()
     unsigned int shader = createShader(shader_source.vertexSource, shader_source.fragmentSource);
     glUseProgram(shader);
 
-
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glClearError();
         //glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        ASSERT(glCheckError());
+        GLCHECK(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
         /* 렌더링 작업
         glBegin(GL_TRIANGLES);
