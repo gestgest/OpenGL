@@ -184,6 +184,10 @@ int main()
     // OpenGL 컨텍스트 생성
     glfwMakeContextCurrent(window);
 
+    //수직 동기화 => 주사율에 맞는 화면전환
+    glfwSwapInterval(1);
+
+
     if (glewInit() != GLEW_OK) {
         std::cout << "error" << std::endl;
         exit(EXIT_FAILURE);
@@ -235,16 +239,27 @@ int main()
     glUseProgram(shader);
 
     int location = glGetUniformLocation(shader, "u_color");
-    ASSERT(location != -1)
-    glUniform4f(location, 0.0f, 0.5f, 1.0f, 1.0f);
+    ASSERT(location != -1);
+    float g = 0;
+    float plus = 0.05f;
 
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glUniform4f(location, 0.0f, g, 1.0f, 1.0f);
         //glDrawArrays(GL_TRIANGLES, 0, 6);
         GLCHECK(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+        if (g < 0.0f) {
+            plus = 0.05f;
+        }
+        else if(1.0f < g) {
+            plus = -0.05f;
+        }
+        g += plus;
+
 
         /* 렌더링 작업
         glBegin(GL_TRIANGLES);
@@ -253,6 +268,8 @@ int main()
         glVertex2f(0.5f, 0.5f);
         glEnd();
         */
+
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
