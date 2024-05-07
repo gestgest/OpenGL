@@ -169,6 +169,11 @@ int main()
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
+    //3.3.0 버전
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    
     // 윈도우 생성
     window = glfwCreateWindow(640, 480, "My Title", NULL, NULL);
     if (!window)
@@ -187,12 +192,11 @@ int main()
     //수직 동기화 => 주사율에 맞는 화면전환
     glfwSwapInterval(1);
 
-
     if (glewInit() != GLEW_OK) {
         std::cout << "error" << std::endl;
         exit(EXIT_FAILURE);
     }
-    //std::cout << glGetString(GL_VERSION) << std::endl; // 버전확인
+    std::cout << glGetString(GL_VERSION) << std::endl; // 버전확인
 
     //수학 그래프 기준 x,y축
     float pos[8] = {
@@ -207,13 +211,17 @@ int main()
         1, 2, 3
     };
 
+    unsigned int vao;
+    GLCHECK(glGenVertexArrays(1, &vao));
+    GLCHECK(glBindVertexArray(vao));
+
     unsigned int buffer; //GLuint
 
     glGenBuffers(1, &buffer); //(버퍼 갯수, 버퍼 변수)
     glBindBuffer(GL_ARRAY_BUFFER, buffer); //정점에 대한 데이터를 생성할 버퍼로 할당
     glBufferData(GL_ARRAY_BUFFER, sizeof(pos) * sizeof(float), pos, GL_STATIC_DRAW);
 
-
+    //인덱스
     unsigned int ibo; //GLuint
 
     glGenBuffers(1, &ibo); //(버퍼 갯수, 버퍼 변수)
@@ -238,6 +246,12 @@ int main()
     unsigned int shader = createShader(shader_source.vertexSource, shader_source.fragmentSource);
     glUseProgram(shader);
 
+    //바인드된 버퍼를 해제한다면?
+    GLCHECK(glBindVertexArray(0));
+    GLCHECK(glUseProgram(0));
+    GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0)); //정점에 대한 데이터를 생성할 버퍼로 할당
+    GLCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)); //버퍼
+
     int location = glGetUniformLocation(shader, "u_color");
     ASSERT(location != -1);
     float g = 0;
@@ -248,7 +262,17 @@ int main()
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
+        GLCHECK(glUseProgram(shader));
         glUniform4f(location, 0.0f, g, 1.0f, 1.0f);
+
+        //GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, buffer)); //정점에 대한 데이터를 생성할 버퍼로 할당
+        //정점 활성화, 버퍼 바인딩 안해도 됨 => VAO 변수가 알아서 함
+        //glEnableVertexAttribArray(0);
+        //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+        GLCHECK(glBindVertexArray(vao)); //정점에 대한 데이터를 생성할 버퍼로 할당
+
+        GLCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo)); //ibo
+
         //glDrawArrays(GL_TRIANGLES, 0, 6);
         GLCHECK(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
@@ -260,7 +284,6 @@ int main()
         }
         g += plus;
 
-
         /* 렌더링 작업
         glBegin(GL_TRIANGLES);
         glVertex2f(-0.5f, -0.5f);
@@ -268,7 +291,6 @@ int main()
         glVertex2f(0.5f, 0.5f);
         glEnd();
         */
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();
