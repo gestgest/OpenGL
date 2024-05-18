@@ -16,14 +16,37 @@
     <Filter Include="소스 파일\shader">
       <UniqueIdentifier>{3dca3759-a96a-4ce6-aa56-c40a54f934bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\src">
+      <UniqueIdentifier>{b30c855f-b390-4747-b28f-3691b3ea12d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="src\cpp\VertexBuffer.cpp">
+      <Filter>소스 파일\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cpp\IndexBuffer.cpp">
+      <Filter>소스 파일\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cpp\Renderer.cpp">
+      <Filter>소스 파일\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="basic.shader">
+    <ClInclude Include="src\header\Renderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\VertexBuffer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\IndexBuffer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\basic.shader">
       <Filter>소스 파일\shader</Filter>
     </None>
   </ItemGroup>

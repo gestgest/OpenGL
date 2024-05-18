@@ -5,33 +5,12 @@
 #include <string>
 #include <sstream>
 
-#define ASSERT(x) if (!(x)) __debugbreak();
-
-//초기화 -> x의 함수를 부르고 -> 체크
-#define GLCHECK(x) glClearError();\
-    x;\
-    ASSERT(glCheckError(#x, __FILE__, __LINE__));
-
-//그 전에 있던 에러 코드 배열? 초기화 함수
-static void glClearError()
-{
-    while (glGetError() != GL_NO_ERROR);
-}
-
-//에러출력 함수
-static bool glCheckError(const char* function_name, const char* file_name, int line)
-{
-    while (GLenum error = glGetError())
-    {
-        std::cout << "Error Code [" << error << "] \nfilename : " << function_name 
-            << "\nfile_name : " << file_name << "\nline : " << line << "\n";
-        return false;
-    }
-    return true;
-}
+#include "src/header/Renderer.h"
+#include "src/header/IndexBuffer.h"
+#include "src/header/VertexBuffer.h"
 
 //참고로 한글 출력은 안됨
-struct ShaderSource 
+struct ShaderSource
 {
     std::string vertexSource;
     std::string fragmentSource;
@@ -42,18 +21,18 @@ static ShaderSource InputShader(const std::string& filepath)
     std::ifstream stream(filepath);
     //std::cout << filepath << '\n';
 
-    enum class ShaderType 
+    enum class ShaderType
     {
         NONE = -1,
-        VERTEX= 0,
+        VERTEX = 0,
         FRAGMENT = 1,
     };
 
     ShaderType type = ShaderType::NONE;
     std::string line;
     std::stringstream ss[2];
-    
-    
+
+
     while (getline(stream, line, '\r'))
     {
         if (line.find("#shader") != std::string::npos)
@@ -75,7 +54,7 @@ static ShaderSource InputShader(const std::string& filepath)
             }
         }
     }
-    return { ss[0].str(), ss[1].str()};
+    return { ss[0].str(), ss[1].str() };
 }
 
 static unsigned int compileShader(unsigned int type, const std::string& source)
@@ -88,18 +67,18 @@ static unsigned int compileShader(unsigned int type, const std::string& source)
     //std::cout << id << std::endl;
 
     //에러 핸들링
-    int result; 
+    int result;
     glGetShaderiv(id, GL_COMPILE_STATUS, &result); //result가 반환함
     if (result == GL_FALSE) //셰이더 컴파일 실패
     {
         int length;
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length); //오류 로그의 길이를 가져와라
-        char* message = new char [length];  //힙에 저장
+        char* message = new char[length];  //힙에 저장
 
         //char* message = (char*)alloca(sizeof(char) * length); 스택에 저장, 이 if문이 끝나면 없어진다.
         //단, 스택오버플로우가 날 수 있다.
         //영상에서는 스택 초기화 때문에 alloca를 썼지만 visual studio에서는 되도록이면 쓰지말라고 했다.
-        
+
         glGetShaderInfoLog(id, length, &length, message); //쉐이더 정보 로그를 가져와라 => 실패 로그
 
         std::cout << "Compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "Shader Error" << std::endl;
@@ -173,7 +152,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
+
     // 윈도우 생성
     window = glfwCreateWindow(640, 480, "My Title", NULL, NULL);
     if (!window)
@@ -215,19 +194,8 @@ int main()
     GLCHECK(glGenVertexArrays(1, &vao));
     GLCHECK(glBindVertexArray(vao));
 
-    unsigned int buffer; //GLuint
 
-    glGenBuffers(1, &buffer); //(버퍼 갯수, 버퍼 변수)
-    glBindBuffer(GL_ARRAY_BUFFER, buffer); //정점에 대한 데이터를 생성할 버퍼로 할당
-    glBufferData(GL_ARRAY_BUFFER, sizeof(pos) * sizeof(float), pos, GL_STATIC_DRAW);
-
-    //인덱스
-    unsigned int ibo; //GLuint
-
-    glGenBuffers(1, &ibo); //(버퍼 갯수, 버퍼 변수)
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); //버퍼
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_pos) * sizeof(unsigned int), index_pos, GL_STATIC_DRAW);
-
+    VertexBuffer vb(pos, sizeof(pos) * sizeof(float));
 
     //정점 활성화
     glEnableVertexAttribArray(0);
@@ -236,12 +204,15 @@ int main()
     //몇번째 index 속성, 단위 size (x,y면 2개), type, 정규화여부, 정점 크기, 시작 위치
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
+    IndexBuffer ib(index_pos, sizeof(index_pos));
+
+
     //버퍼 메모리 복원
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
     //쉐이더 생성
-    ShaderSource shader_source = InputShader("./basic.shader");
+    ShaderSource shader_source = InputShader("./res/basic.shader");
 
     unsigned int shader = createShader(shader_source.vertexSource, shader_source.fragmentSource);
     glUseProgram(shader);
@@ -271,7 +242,8 @@ int main()
         //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
         GLCHECK(glBindVertexArray(vao)); //정점에 대한 데이터를 생성할 버퍼로 할당
 
-        GLCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo)); //ibo
+        //GLCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo)); //ibo
+        ib.bind();
 
         //glDrawArrays(GL_TRIANGLES, 0, 6);
         GLCHECK(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
@@ -279,7 +251,7 @@ int main()
         if (g < 0.0f) {
             plus = 0.05f;
         }
-        else if(1.0f < g) {
+        else if (1.0f < g) {
             plus = -0.05f;
         }
         g += plus;
@@ -298,7 +270,7 @@ int main()
 
     //쉐이더 지우기
     glDeleteShader(shader);
-    
+
     // 종료
     glfwDestroyWindow(window);
     glfwTerminate();
