@@ -151,11 +151,13 @@
     <ClCompile Include="src\cpp\IndexBuffer.cpp" />
     <ClCompile Include="src\cpp\Renderer.cpp" />
     <ClCompile Include="src\cpp\VertexBuffer.cpp" />
+    <ClCompile Include="VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\header\IndexBuffer.h" />
     <ClInclude Include="src\header\Renderer.h" />
     <ClInclude Include="src\header\VertexBuffer.h" />
+    <ClInclude Include="VertexArray.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\basic.shader" />
