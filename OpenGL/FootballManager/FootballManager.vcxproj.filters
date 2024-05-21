@@ -33,8 +33,11 @@
     <ClCompile Include="src\cpp\Renderer.cpp">
       <Filter>소스 파일\src</Filter>
     </ClCompile>
-    <ClCompile Include="VertexArray.cpp">
+    <ClCompile Include="src\cpp\VertexArray.cpp">
       <Filter>소스 파일\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cpp\VertexBufferLayout.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -47,7 +50,10 @@
     <ClInclude Include="src\header\IndexBuffer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="VertexArray.h">
+    <ClInclude Include="src\header\VertexArray.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\VertexBufferLayout.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

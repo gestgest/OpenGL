@@ -8,7 +8,7 @@ VertexArray::~VertexArray() {
 
 }
 
-void VertexArray::addBuffer(const VertexBuffer& v)
+void VertexArray::addBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
 {
 
 }
