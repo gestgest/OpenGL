@@ -1,5 +1,6 @@
-#include "../header/Renderer.h"
 #include <iostream>
+#include "../header/Renderer.h"
+
 
 void glClearError()
 {

@@ -37,7 +37,7 @@
       <Filter>소스 파일\src</Filter>
     </ClCompile>
     <ClCompile Include="src\cpp\VertexBufferLayout.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

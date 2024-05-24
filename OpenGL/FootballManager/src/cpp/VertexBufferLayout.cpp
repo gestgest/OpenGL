@@ -4,36 +4,36 @@ VertexBufferLayout::VertexBufferLayout() {
 	stride = 0;
 }
 
-VertexBufferLayout::~VertexBufferLayout() {
+template<typename T>
+void VertexBufferLayout::push(unsigned int count) {
 
 }
 
-template<typename T>
-void VertexBufferLayout::push(int count) {
-
-}
-
-template<typename T>
+template<>
 void VertexBufferLayout::push<float>(unsigned int count) {
-	stride += sizeof(GLfloat);
-	elements.push_back({ GL_FLOAT, count, false });
+	unsigned int type = GL_FLOAT;
+	elements.push_back({ type, count, GL_FALSE });
+	stride += count * VertexBufferElement::getSizeOfType(type);
 }
 
-template<typename T>
+template<>
 void VertexBufferLayout::push<unsigned int>(unsigned int count) {
-	stride += sizeof(GLuint);
-	elements.push_back({ GL_UNSIGNED_INT, count, false });
+	unsigned int type = GL_UNSIGNED_INT;
+	elements.push_back({ type, count, GL_FALSE });
+	stride += count * VertexBufferElement::getSizeOfType(type);
 }
 
-template<typename T>
+template<>
 void VertexBufferLayout::push<unsigned char>(unsigned int count) {
-	stride += sizeof(GLbyte);
-	elements.push_back({ GL_UNSIGNED_BYTE, count, false });
+	unsigned int type = GL_UNSIGNED_BYTE;
+	elements.push_back({ type, count, GL_TRUE });
+	stride += count * VertexBufferElement::getSizeOfType(type);
 }
 
-inline unsigned int VertexBufferLayout::getStride() const {
+unsigned int VertexBufferLayout::getStride() {
 	return this->stride;
 }
-inline const std::vector<VertexBufferElement>& VertexBufferLayout::getElements() const& {
+
+std::vector<VertexBufferElement>& VertexBufferLayout::getElements() {
 	return this->elements;
 }

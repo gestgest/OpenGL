@@ -8,6 +8,8 @@
 #include "src/header/Renderer.h"
 #include "src/header/IndexBuffer.h"
 #include "src/header/VertexBuffer.h"
+#include "src/header/VertexArray.h"
+#include "src/header/VertexBufferLayout.h"
 
 //참고로 한글 출력은 안됨
 struct ShaderSource
@@ -190,22 +192,14 @@ int main()
         1, 2, 3
     };
 
-    unsigned int vao;
-    GLCHECK(glGenVertexArrays(1, &vao));
-    GLCHECK(glBindVertexArray(vao));
-
-
+    VertexArray va;
     VertexBuffer vb(pos, sizeof(pos) * sizeof(float));
-
-    //정점 활성화
-    glEnableVertexAttribArray(0);
-
-    //버퍼안에 있는 정보의 속성을 알려주는 함수
-    //몇번째 index 속성, 단위 size (x,y면 2개), type, 정규화여부, 정점 크기, 시작 위치
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
-
     IndexBuffer ib(index_pos, sizeof(index_pos));
 
+    //VertexBufferLayout 라인
+    VertexBufferLayout layout;
+    layout.push<float>(2);
+    va.addBuffer(vb, layout);
 
     //버퍼 메모리 복원
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -240,7 +234,7 @@ int main()
         //정점 활성화, 버퍼 바인딩 안해도 됨 => VAO 변수가 알아서 함
         //glEnableVertexAttribArray(0);
         //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
-        GLCHECK(glBindVertexArray(vao)); //정점에 대한 데이터를 생성할 버퍼로 할당
+        va.bind(); //정점에 대한 데이터를 생성할 버퍼로 할당
 
         //GLCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo)); //ibo
         ib.bind();
