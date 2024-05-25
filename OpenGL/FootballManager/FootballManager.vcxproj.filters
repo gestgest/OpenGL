@@ -39,6 +39,9 @@
     <ClCompile Include="src\cpp\VertexBufferLayout.cpp">
       <Filter>소스 파일\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\cpp\Shader.cpp">
+      <Filter>소스 파일\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\header\Renderer.h">
@@ -54,6 +57,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="src\header\VertexBufferLayout.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\Shader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
