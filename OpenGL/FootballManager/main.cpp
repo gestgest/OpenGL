@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "src/header/Renderer.h"
+#include "src/header/DebugRenderer.h"
 #include "src/header/Shader.h"
 
 #include "src/header/IndexBuffer.h"
@@ -98,6 +99,7 @@ int main()
     GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0)); //정점에 대한 데이터를 생성할 버퍼로 할당
     GLCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)); //버퍼
 
+    Renderer renderer;
 
     float g = 0;
     float plus = 0.05f;
@@ -105,16 +107,21 @@ int main()
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer.clear();
 
         sha.bind();
+        sha.setUniform4f("u_color", 0.0f, g, 1.0f, 1.0f);
+        /*
         sha.setUniform4f("u_color", 0.0f, g, 1.0f, 1.0f);
 
         va.bind();
         ib.bind();
+        */
+        renderer.draw(va, ib, sha);
+
 
         //glDrawArrays(GL_TRIANGLES, 0, 6);
-        GLCHECK(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+        //GLCHECK(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
         if (g < 0.0f) {
             plus = 0.05f;

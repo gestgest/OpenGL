@@ -1,4 +1,5 @@
 #pragma once
+#include "DebugRenderer.h"
 
 class IndexBuffer {
 private:

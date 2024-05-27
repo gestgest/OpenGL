@@ -1,19 +1,21 @@
 #include <iostream>
 #include "../header/Renderer.h"
+#include "../header/DebugRenderer.h"
 
 
-void glClearError()
+void Renderer::clear() const
 {
-    while (glGetError() != GL_NO_ERROR);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
-bool glCheckError(const char* function_name, const char* file_name, int line)
-{
-    while (GLenum error = glGetError())
-    {
-        std::cout << "Error Code [" << error << "] \nfilename : " << function_name
-            << "\nfile_name : " << file_name << "\nline : " << line << "\n";
-        return false;
-    }
-    return true;
+//bind
+void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const {
+
+    //shader.setUniform4f("u_color", 0.0f, g, 1.0f, 1.0f);
+
+    va.bind();
+    ib.bind();
+
+    //사각형이면 count = 6.
+    GLCHECK(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr));
 }
