@@ -19,6 +19,12 @@
     <Filter Include="소스 파일\src">
       <UniqueIdentifier>{b30c855f-b390-4747-b28f-3691b3ea12d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\stb">
+      <UniqueIdentifier>{69098562-0218-4e41-a28e-9c2c5c52897f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\src\stb">
+      <UniqueIdentifier>{4854a44b-2d16-4dbb-a04f-04bf2f9b2276}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -45,6 +51,12 @@
     <ClCompile Include="src\cpp\DebugRenderer.cpp">
       <Filter>소스 파일\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\cpp\stb\stb_image.cpp">
+      <Filter>소스 파일\src\stb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cpp\Texture.cpp">
+      <Filter>소스 파일\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\header\Renderer.h">
@@ -66,6 +78,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="src\header\DebugRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\stb_image.h">
+      <Filter>헤더 파일\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\Texture.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
