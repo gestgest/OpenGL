@@ -80,9 +80,6 @@
     <ClInclude Include="src\header\DebugRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="src\header\stb_image.h">
-      <Filter>헤더 파일\stb</Filter>
-    </ClInclude>
     <ClInclude Include="src\header\Texture.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

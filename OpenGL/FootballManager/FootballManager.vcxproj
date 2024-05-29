@@ -163,7 +163,6 @@
     <ClInclude Include="src\header\IndexBuffer.h" />
     <ClInclude Include="src\header\Renderer.h" />
     <ClInclude Include="src\header\Shader.h" />
-    <ClInclude Include="src\header\stb_image.h" />
     <ClInclude Include="src\header\Texture.h" />
     <ClInclude Include="src\header\VertexBuffer.h" />
     <ClInclude Include="src\header\VertexArray.h" />
