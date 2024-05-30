@@ -163,6 +163,7 @@
     <ClInclude Include="src\header\IndexBuffer.h" />
     <ClInclude Include="src\header\Renderer.h" />
     <ClInclude Include="src\header\Shader.h" />
+    <ClInclude Include="src\header\stb\stb_image.h" />
     <ClInclude Include="src\header\Texture.h" />
     <ClInclude Include="src\header\VertexBuffer.h" />
     <ClInclude Include="src\header\VertexArray.h" />
@@ -170,6 +171,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\basic.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\texture\thunder.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

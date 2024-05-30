@@ -18,23 +18,30 @@ Texture::Texture(const std::string& path) {
 	//텍스처 파라미터 넣는 함수. 필수로 4개의 파라미터를 지정해야 함 = > 안하면 검은색 질감으로 보임
 	GLCHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GLCHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GLCHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)); //x
-	GLCHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)); //y
+	GLCHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); //x
+	GLCHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); //y
 
 	//타겟, 레벨(다중 레벨이면 1이상), 내부포멧, width, height, border, 외부포멧, 타입, 픽셀버퍼(nullptr)
-	GLCHECK(glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer))
+	GLCHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer));
+	GLCHECK(glBindTexture(GL_TEXTURE_2D, 0)); //바인딩 해제
+
+	if (localBuffer)
+		stbi_image_free(localBuffer);
+
 }
 
 Texture::~Texture() {
-
+	GLCHECK(glDeleteTextures(1, &id));
 }
 
-void Texture::bind(unsigned int slot = 0) const{
-
+void Texture::bind(unsigned int slot) const
+{
+	GLCHECK(glActiveTexture(GL_TEXTURE0 + slot)); //0슬롯 활성화 (GL_TEXTURE0 + 1)
+	GLCHECK(glBindTexture(GL_TEXTURE_2D, id));
 }
 
 void Texture::unBind() {
-
+	GLCHECK(glBindTexture(GL_TEXTURE_2D, 0)); //바인딩 해제
 }
 
 inline int Texture::getWidth() const {

@@ -8,6 +8,7 @@
 #include "src/header/Renderer.h"
 #include "src/header/DebugRenderer.h"
 #include "src/header/Shader.h"
+#include "src/header/Texture.h"
 
 #include "src/header/IndexBuffer.h"
 #include "src/header/VertexBuffer.h"
@@ -64,11 +65,20 @@ int main()
     std::cout << glGetString(GL_VERSION) << std::endl; // 버전확인
 
     //수학 그래프 기준 x,y축
-    float pos[8] = {
+    /*
+    float pos[] = {
+        -0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, 1.0f, 0.0f
+    };
+    */
+
+    float pos[] = {
         -0.5f, 0.5f,
         -0.5f, -0.5f,
         0.5f, 0.5f,
-        0.5f, -0.5f,
+        0.5f, -0.5f
     };
 
     unsigned int index_pos[6] = {
@@ -83,6 +93,7 @@ int main()
     //VertexBufferLayout 라인
     VertexBufferLayout layout;
     layout.push<float>(2);
+    //layout.push<float>(2);
     va.addBuffer(vb, layout);
 
     //버퍼 메모리 복원
@@ -92,6 +103,10 @@ int main()
     //쉐이더 생성
     Shader sha("./res/basic.shader");
     sha.bind();
+
+    Texture texture("./res/texture/thunder.png");
+    texture.bind();
+    //sha.setUniform1i("u_texture", 0);
 
     //바인드된 버퍼를 해제한다면?
     va.unBind();
