@@ -65,26 +65,29 @@ int main()
     std::cout << glGetString(GL_VERSION) << std::endl; // 버전확인
 
     //수학 그래프 기준 x,y축
-    /*
     float pos[] = {
         -0.5f, 0.5f, 0.0f, 1.0f,
         -0.5f, -0.5f, 0.0f, 0.0f,
         0.5f, 0.5f, 1.0f, 1.0f,
         0.5f, -0.5f, 1.0f, 0.0f
     };
-    */
 
+    /*
     float pos[] = {
         -0.5f, 0.5f,
         -0.5f, -0.5f,
         0.5f, 0.5f,
         0.5f, -0.5f
     };
+    */
 
     unsigned int index_pos[6] = {
         0, 1, 2,
         1, 2, 3
     };
+
+    GLCHECK(glEnable(GL_BLEND));
+    GLCHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     VertexArray va;
     VertexBuffer vb(pos, sizeof(pos) * sizeof(float));
@@ -93,7 +96,7 @@ int main()
     //VertexBufferLayout 라인
     VertexBufferLayout layout;
     layout.push<float>(2);
-    //layout.push<float>(2);
+    layout.push<float>(2);
     va.addBuffer(vb, layout);
 
     //버퍼 메모리 복원
@@ -104,9 +107,9 @@ int main()
     Shader sha("./res/basic.shader");
     sha.bind();
 
-    Texture texture("./res/texture/thunder.png");
+    Texture texture("./res/texture/reactIcon.png");
     texture.bind();
-    //sha.setUniform1i("u_texture", 0);
+    sha.setUniform1i("u_texture", 0);
 
     //바인드된 버퍼를 해제한다면?
     va.unBind();

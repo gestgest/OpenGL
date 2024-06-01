@@ -146,16 +146,16 @@ void Shader::unBind() const {
 
 void Shader::setUniform1f(const std::string& name, float value)
 {
-    glUniform1f(getUniformLocation(name), value);
+    GLCHECK(glUniform1f(getUniformLocation(name), value));
 }
 
 void Shader::setUniform4f(const std::string& name, float v1, float v2, float v3, float v4)
 {
-    glUniform4f(getUniformLocation(name), v1, v2, v3, v4);
+    GLCHECK(glUniform4f(getUniformLocation(name), v1, v2, v3, v4));
 }
 void Shader::setUniform1i(const std::string& name, int value)
 {
-    glUniform1i(getUniformLocation(name), value);
+    GLCHECK(glUniform1i(getUniformLocation(name), value));
 }
 
 //private
@@ -166,7 +166,10 @@ int Shader::getUniformLocation(const std::string& name)
     }
 
     int location = glGetUniformLocation(id, name.c_str());
-    ASSERT(location != -1);
+    //ASSERT(location != -1);
+    if (location == -1) {
+        std::cout << "uniform don't exist " << '\n';
+    }
     cache_location[name] = location;
 
     return cache_location[name];
