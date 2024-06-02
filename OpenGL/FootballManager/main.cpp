@@ -15,6 +15,9 @@
 #include "src/header/VertexArray.h"
 #include "src/header/VertexBufferLayout.h"
 
+#include "src/header/glm/glm.hpp"
+#include "src/header/glm/gtc/matrix_transform.hpp"
+
 
 void error_callback(int error, const char* description)
 {
@@ -64,6 +67,8 @@ int main()
     }
     std::cout << glGetString(GL_VERSION) << std::endl; // 버전확인
 
+    ///////////////////////////////////////////////////////////////변수
+
     //수학 그래프 기준 x,y축
     float pos[] = {
         -0.5f, 0.5f, 0.0f, 1.0f,
@@ -72,19 +77,13 @@ int main()
         0.5f, -0.5f, 1.0f, 0.0f
     };
 
-    /*
-    float pos[] = {
-        -0.5f, 0.5f,
-        -0.5f, -0.5f,
-        0.5f, 0.5f,
-        0.5f, -0.5f
-    };
-    */
-
     unsigned int index_pos[6] = {
         0, 1, 2,
         1, 2, 3
     };
+
+    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f); //4 x 3 종횡비
+
 
     GLCHECK(glEnable(GL_BLEND));
     GLCHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
