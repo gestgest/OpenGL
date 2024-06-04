@@ -105,8 +105,9 @@ int main()
     //쉐이더 생성
     Shader sha("./res/basic.shader");
     sha.bind();
+    sha.setUniformMat4f("u_mvp", proj);
 
-    Texture texture("./res/texture/reactIcon.png");
+    Texture texture("./res/texture/thunder.png");
     texture.bind();
     sha.setUniform1i("u_texture", 0);
 
