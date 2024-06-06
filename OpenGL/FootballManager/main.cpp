@@ -69,12 +69,13 @@ int main()
 
     ///////////////////////////////////////////////////////////////변수
 
+    float dx = 512.0f, dy = 445.0f;
     //수학 그래프 기준 x,y축
     float pos[] = {
-        -0.5f, 0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, 0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, 1.0f, 0.0f
+        100.0f, 100.0f + dy, 0.0f, 1.0f,
+        100.0f, 100.0f, 0.0f, 0.0f,
+        100.0f + dx, 100.0f + dy, 1.0f, 1.0f,
+        100.0f + dx, 100.0f, 1.0f, 0.0f
     };
 
     unsigned int index_pos[6] = {
@@ -82,8 +83,8 @@ int main()
         1, 2, 3
     };
 
-    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f); //4 x 3 종횡비
-
+    glm::mat4 proj = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f); //처음 화면 자체가 4 : 3이다.
+    
 
     GLCHECK(glEnable(GL_BLEND));
     GLCHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -107,7 +108,7 @@ int main()
     sha.bind();
     sha.setUniformMat4f("u_mvp", proj);
 
-    Texture texture("./res/texture/thunder.png");
+    Texture texture("./res/texture/reactIcon.png");
     texture.bind();
     sha.setUniform1i("u_texture", 0);
 
