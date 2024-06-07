@@ -84,6 +84,7 @@ int main()
     };
 
     glm::mat4 proj = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f); //처음 화면 자체가 4 : 3이다.
+    glm::mat4 view(1.0f);
     
 
     GLCHECK(glEnable(GL_BLEND));
