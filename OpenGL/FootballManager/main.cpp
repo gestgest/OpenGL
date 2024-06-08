@@ -18,6 +18,10 @@
 #include "src/header/glm/glm.hpp"
 #include "src/header/glm/gtc/matrix_transform.hpp"
 
+#include "src/header/imgui/imgui.h"
+#include "src/header/imgui/imgui_impl_glfw.h"
+#include "src/header/imgui/imgui_impl_opengl3.h"
+
 
 void error_callback(int error, const char* description)
 {
@@ -32,6 +36,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main()
 {
+    const char* glsl_version = "#version 130";
     GLFWwindow* window;
 
     // GLFW 라이브러리 초기화
@@ -44,7 +49,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // 윈도우 생성
-    window = glfwCreateWindow(640, 480, "My Title", NULL, NULL);
+    window = glfwCreateWindow(900, 600, "My Title", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -70,6 +75,8 @@ int main()
     ///////////////////////////////////////////////////////////////변수
 
     float dx = 512.0f, dy = 445.0f;
+    float transx = 0.0f;
+
     //수학 그래프 기준 x,y축
     float pos[] = {
         100.0f, 100.0f + dy, 0.0f, 1.0f,
@@ -84,8 +91,7 @@ int main()
     };
 
     glm::mat4 proj = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f); //처음 화면 자체가 4 : 3이다.
-    glm::mat4 view(1.0f);
-    
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0)); //카메라, 왼쪽으로 100 이동(translate) 
 
     GLCHECK(glEnable(GL_BLEND));
     GLCHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -107,7 +113,6 @@ int main()
     //쉐이더 생성
     Shader sha("./res/basic.shader");
     sha.bind();
-    sha.setUniformMat4f("u_mvp", proj);
 
     Texture texture("./res/texture/reactIcon.png");
     texture.bind();
@@ -124,13 +129,45 @@ int main()
     float g = 0;
     float plus = 0.05f;
 
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
+
+    // Our state
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
     {
         renderer.clear();
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+
         sha.bind();
+
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(transx * 500, 0, 0)); //모델
+        glm::mat4 mvp = proj * view * model;
+
         sha.setUniform4f("u_color", 0.0f, g, 1.0f, 1.0f);
+        sha.setUniformMat4f("u_mvp", mvp);
         /*
         sha.setUniform4f("u_color", 0.0f, g, 1.0f, 1.0f);
 
@@ -159,9 +196,39 @@ int main()
         glEnd();
         */
 
+        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+        {
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Checkbox("Another Window", &show_another_window);
+
+            ImGui::SliderFloat("trans x", &transx, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                counter++;
+            ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::End();
+        }
+
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     // 종료
     glfwDestroyWindow(window);
