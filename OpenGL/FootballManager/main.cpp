@@ -22,6 +22,8 @@
 #include "src/header/imgui/imgui_impl_glfw.h"
 #include "src/header/imgui/imgui_impl_opengl3.h"
 
+#define MODEL_SIZE 2
+
 
 void error_callback(int error, const char* description)
 {
@@ -75,7 +77,14 @@ int main()
     ///////////////////////////////////////////////////////////////변수
 
     float dx = 512.0f, dy = 445.0f;
-    float transx = 0.0f;
+    glm::vec3 trans_pos[2];
+    for(int i = 0; i < MODEL_SIZE; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            trans_pos[i][j] = 0;
+        }
+    }
 
     //수학 그래프 기준 x,y축
     float pos[] = {
@@ -163,18 +172,23 @@ int main()
 
         sha.bind();
 
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(transx * 500, 0, 0)); //모델
-        glm::mat4 mvp = proj * view * model;
+        for (int i = 0; i < MODEL_SIZE; i++)
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), trans_pos[i]);
+            glm::mat4 mvp = proj * view * model;
+            sha.bind();
+            sha.setUniformMat4f("u_mvp", mvp);
+            renderer.draw(va, ib, sha); //여러개의 배열에 draw함수는 여러번 호출해야 한다
+        }
 
         sha.setUniform4f("u_color", 0.0f, g, 1.0f, 1.0f);
-        sha.setUniformMat4f("u_mvp", mvp);
+
         /*
         sha.setUniform4f("u_color", 0.0f, g, 1.0f, 1.0f);
 
         va.bind();
         ib.bind();
         */
-        renderer.draw(va, ib, sha);
 
 
         //glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -193,7 +207,7 @@ int main()
         glVertex2f(-0.5f, -0.5f);
         glVertex2f(-0.5f, 0.5f);
         glVertex2f(0.5f, 0.5f);
-        glEnd();
+        glEnd();e
         */
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
@@ -206,7 +220,11 @@ int main()
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
-            ImGui::SliderFloat("trans x", &transx, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            for (int i = 0; i < MODEL_SIZE; i++)
+            {
+                ImGui::SliderFloat3("trans_pos : " + i, &trans_pos[i][0], 0.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1000.0f
+            }
+            //SliderFloat3 => 텍스트, 시작 주소, min, max)
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
             if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
