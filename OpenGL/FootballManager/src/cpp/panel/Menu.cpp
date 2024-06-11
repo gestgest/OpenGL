@@ -36,6 +36,6 @@ namespace panel
 	template <typename T>
 	void Menu::addItems(const std::string& name)
 	{
-		items.push_back(std::make_pair(name, []() {return new T()});
+		items.push_back(std::make_pair(name, []() { return new T(); }));
 	}
 }

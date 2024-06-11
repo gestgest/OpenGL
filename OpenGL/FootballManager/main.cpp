@@ -114,9 +114,6 @@ int main()
     {
         renderer.clear();
 
-        panelColor.onUpdate(0.0f);
-        panelColor.onRender();
-        
         ImGui_ImplOpenGL3_NewFrame();
 
         if (current_panel)
@@ -138,7 +135,6 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         
-        panelColor.onImGUIRender();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
