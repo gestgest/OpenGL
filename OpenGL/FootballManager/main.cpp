@@ -22,7 +22,8 @@
 #include "src/header/imgui/imgui_impl_glfw.h"
 #include "src/header/imgui/imgui_impl_opengl3.h"
 
-#include "src/header/frame/FrameColor.h"
+#include "src/header/panel/PanelColor.h"
+#include "src/header/panel/Menu.h"
 
 #define MODEL_SIZE 2
 
@@ -100,21 +101,44 @@ int main()
     ImGui_ImplOpenGL3_Init(glsl_version);
 
 
-    frame::FrameColor frameColor; //파괴하고 다른 Frame으로 바꿔야지 에러가 안 생김
+    panel::Panel* current_panel = NULL;
+    panel::Menu* menu = new panel::Menu(current_panel);
+
+    current_panel = menu;
+    panel::PanelColor panelColor; //파괴하고 다른 Frame으로 바꿔야지 에러가 안 생김
+    menu->addItems<panel::PanelColor>("name");
+
 
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
     {
         renderer.clear();
 
-        frameColor.onUpdate(0.0f);
-        frameColor.onRender();
-
+        panelColor.onUpdate(0.0f);
+        panelColor.onRender();
+        
         ImGui_ImplOpenGL3_NewFrame();
+
+        if (current_panel)
+        {
+            current_panel->onUpdate(0.0f);
+            current_panel->onRender();
+            //버튼을 누르거나 menu가 아닌 경우
+            if (current_panel != menu && ImGui::Button("<-")) 
+            {
+                delete current_panel;
+                current_panel = menu;
+            }
+            ImGui::Begin("Frame");
+            current_panel->onImGUIRender(); //GUI 그리는 함수
+            ImGui::End();
+
+        }
+
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         
-        frameColor.onImGUIRender();
+        panelColor.onImGUIRender();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

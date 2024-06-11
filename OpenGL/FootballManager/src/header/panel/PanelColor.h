@@ -1,16 +1,16 @@
 #pragma once
-#include "frame.h"
+#include "panel.h"
 #include "../DebugRenderer.h"
 #include "../imgui/imgui.h"
 
-namespace frame
+namespace panel
 {
-	class FrameColor : public Frame {
+	class PanelColor : public Panel {
 	private:
 		float color[4];
 	public:
-		FrameColor();
-		~FrameColor();
+		PanelColor();
+		~PanelColor();
 		void onUpdate(float deltatime) override;
 		void onRender() override;
 		void onImGUIRender() override;

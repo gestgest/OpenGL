@@ -149,7 +149,8 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\cpp\DebugRenderer.cpp" />
-    <ClCompile Include="src\cpp\frame\FrameColor.cpp" />
+    <ClCompile Include="src\cpp\panel\Menu.cpp" />
+    <ClCompile Include="src\cpp\panel\PanelColor.cpp" />
     <ClCompile Include="src\cpp\imgui\imgui.cpp" />
     <ClCompile Include="src\cpp\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\cpp\imgui\imgui_draw.cpp" />
@@ -174,8 +175,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\header\DebugRenderer.h" />
-    <ClInclude Include="src\header\frame\frame.h" />
-    <ClInclude Include="src\header\frame\FrameColor.h" />
+    <ClInclude Include="src\header\panel\Menu.h" />
+    <ClInclude Include="src\header\panel\panel.h" />
+    <ClInclude Include="src\header\panel\PanelColor.h" />
     <ClInclude Include="src\header\imgui\imconfig.h" />
     <ClInclude Include="src\header\imgui\imgui.h" />
     <ClInclude Include="src\header\imgui\imgui_impl_glfw.h" />
