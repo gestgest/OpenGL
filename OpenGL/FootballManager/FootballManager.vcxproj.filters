@@ -87,6 +87,9 @@
     <ClCompile Include="src\cpp\imgui\imgui_impl_glfw.cpp">
       <Filter>소스 파일\src\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="src\cpp\frame\FrameColor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\basic.shader">
@@ -152,6 +155,12 @@
     </ClInclude>
     <ClInclude Include="src\header\imgui\imgui_impl_opengl3.h">
       <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\frame\frame.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\frame\FrameColor.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

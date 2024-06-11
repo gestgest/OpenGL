@@ -22,6 +22,8 @@
 #include "src/header/imgui/imgui_impl_glfw.h"
 #include "src/header/imgui/imgui_impl_opengl3.h"
 
+#include "src/header/frame/FrameColor.h"
+
 #define MODEL_SIZE 2
 
 
@@ -74,6 +76,65 @@ int main()
     }
     std::cout << glGetString(GL_VERSION) << std::endl; // 버전확인
 
+
+    GLCHECK(glEnable(GL_BLEND));
+    GLCHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+
+    Renderer renderer;
+
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
+
+    frame::FrameColor frameColor; //파괴하고 다른 Frame으로 바꿔야지 에러가 안 생김
+
+    // 렌더링 루프
+    while (!glfwWindowShouldClose(window))
+    {
+        renderer.clear();
+
+        frameColor.onUpdate(0.0f);
+        frameColor.onRender();
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        
+        frameColor.onImGUIRender();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    // 종료
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    exit(EXIT_SUCCESS);
+}
+
+
+/*
+
     ///////////////////////////////////////////////////////////////변수
 
     float dx = 512.0f, dy = 445.0f;
@@ -99,21 +160,24 @@ int main()
         1, 2, 3
     };
 
-    glm::mat4 proj = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f); //처음 화면 자체가 4 : 3이다.
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0)); //카메라, 왼쪽으로 100 이동(translate) 
 
-    GLCHECK(glEnable(GL_BLEND));
-    GLCHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    glm::mat4 proj = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f); //처음 화면 자체가 4 : 3이다.
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0)); //카메라, 왼쪽으로 100 이동(translate)
 
     VertexArray va;
     VertexBuffer vb(pos, sizeof(pos) * sizeof(float));
     IndexBuffer ib(index_pos, sizeof(index_pos));
+
 
     //VertexBufferLayout 라인
     VertexBufferLayout layout;
     layout.push<float>(2);
     layout.push<float>(2);
     va.addBuffer(vb, layout);
+
+    float g = 0;
+    float plus = 0.05f;
+
 
     //버퍼 메모리 복원
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -133,42 +197,13 @@ int main()
     GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0)); //정점에 대한 데이터를 생성할 버퍼로 할당
     GLCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)); //버퍼
 
-    Renderer renderer;
-
-    float g = 0;
-    float plus = 0.05f;
-
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-
-
     // Our state
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
-    // 렌더링 루프
-    while (!glfwWindowShouldClose(window))
-    {
-        renderer.clear();
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
+    //update
 
         sha.bind();
 
@@ -183,73 +218,39 @@ int main()
 
         sha.setUniform4f("u_color", 0.0f, g, 1.0f, 1.0f);
 
-        /*
-        sha.setUniform4f("u_color", 0.0f, g, 1.0f, 1.0f);
-
-        va.bind();
-        ib.bind();
-        */
-
-
         //glDrawArrays(GL_TRIANGLES, 0, 6);
         //GLCHECK(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
-        if (g < 0.0f) {
-            plus = 0.05f;
-        }
-        else if (1.0f < g) {
-            plus = -0.05f;
-        }
-        g += plus;
-
-        /* 렌더링 작업
-        glBegin(GL_TRIANGLES);
-        glVertex2f(-0.5f, -0.5f);
-        glVertex2f(-0.5f, 0.5f);
-        glVertex2f(0.5f, 0.5f);
-        glEnd();e
-        */
-
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-        {
-            static int counter = 0;
-
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
-
-            for (int i = 0; i < MODEL_SIZE; i++)
-            {
-                ImGui::SliderFloat3("trans_pos : " + i, &trans_pos[i][0], 0.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1000.0f
-            }
-            //SliderFloat3 => 텍스트, 시작 주소, min, max)
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-            ImGui::End();
-        }
-
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    // 종료
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    exit(EXIT_SUCCESS);
+if (g < 0.0f) {
+    plus = 0.05f;
 }
+else if (1.0f < g) {
+    plus = -0.05f;
+}
+g += plus;
+
+// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+    static int counter = 0;
+
+    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+    ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+    ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+    ImGui::Checkbox("Another Window", &show_another_window);
+
+    for (int i = 0; i < MODEL_SIZE; i++)
+    {
+        ImGui::SliderFloat3("trans_pos : " + i, &trans_pos[i][0], 0.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1000.0f
+    }
+    //SliderFloat3 => 텍스트, 시작 주소, min, max)
+    ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+        counter++;
+    ImGui::SameLine();
+    ImGui::Text("counter = %d", counter);
+
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+    ImGui::End();
+    
+*/
