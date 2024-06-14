@@ -3,10 +3,11 @@
 
 namespace panel
 {
-	Menu::Menu(Panel* current)
+	//*&로 해야지 current의 메모리가 실시간으로 적용된다
+	Menu::Menu(Panel*& current) : current(current)
 	{
-		this->current = current;
 	}
+
 	Menu::~Menu()
 	{
 
@@ -33,9 +34,4 @@ namespace panel
 		}
 	}
 
-	template <typename T>
-	void Menu::addItems(const std::string& name)
-	{
-		items.push_back(std::make_pair(name, []() { return new T(); }));
-	}
 }

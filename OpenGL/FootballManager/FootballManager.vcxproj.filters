@@ -34,6 +34,12 @@
     <Filter Include="소스 파일\src\imgui">
       <UniqueIdentifier>{ae0783f2-4520-40cc-89ec-5231ba35945a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\panel">
+      <UniqueIdentifier>{8e2a209a-6777-4bf8-a7ca-14ecdd9cc2c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\src\panel">
+      <UniqueIdentifier>{e2091f5b-fdc7-4a59-8154-3949c0947e12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -87,11 +93,11 @@
     <ClCompile Include="src\cpp\imgui\imgui_impl_glfw.cpp">
       <Filter>소스 파일\src\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\cpp\panel\PanelColor.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="src\cpp\panel\Menu.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\src\panel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cpp\panel\PanelColor.cpp">
+      <Filter>소스 파일\src\panel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -160,13 +166,13 @@
       <Filter>헤더 파일\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\header\panel\panel.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\panel\PanelColor.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\panel</Filter>
     </ClInclude>
     <ClInclude Include="src\header\panel\Menu.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\panel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\panel\PanelColor.h">
+      <Filter>헤더 파일\panel</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

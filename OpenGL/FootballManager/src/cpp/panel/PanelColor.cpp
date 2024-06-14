@@ -4,9 +4,9 @@ namespace panel
 {
 	PanelColor::PanelColor()
 	{
-		color[0] = 0.2f;
-		color[1] = 0.3f;
-		color[2] = 0.8f;
+		color[0] = 0.0f;
+		color[1] = 0.0f;
+		color[2] = 0.0f;
 		color[3] = 1.0f;
 	}
 	PanelColor::~PanelColor()

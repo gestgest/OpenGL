@@ -105,7 +105,6 @@ int main()
     panel::Menu* menu = new panel::Menu(current_panel);
 
     current_panel = menu;
-    panel::PanelColor panelColor; //파괴하고 다른 Frame으로 바꿔야지 에러가 안 생김
     menu->addItems<panel::PanelColor>("name");
 
 
@@ -115,25 +114,24 @@ int main()
         renderer.clear();
 
         ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
         if (current_panel)
         {
             current_panel->onUpdate(0.0f);
             current_panel->onRender();
+            ImGui::Begin("Frame");
             //버튼을 누르거나 menu가 아닌 경우
             if (current_panel != menu && ImGui::Button("<-")) 
             {
                 delete current_panel;
                 current_panel = menu;
             }
-            ImGui::Begin("Frame");
             current_panel->onImGUIRender(); //GUI 그리는 함수
             ImGui::End();
-
         }
 
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
         
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
