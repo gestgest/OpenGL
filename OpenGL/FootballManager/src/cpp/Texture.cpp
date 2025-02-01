@@ -30,7 +30,8 @@ Texture::Texture(const std::string& path) {
 
 }
 
-Texture::~Texture() {
+Texture::~Texture() 
+{
 	GLCHECK(glDeleteTextures(1, &id));
 }
 
@@ -50,4 +51,7 @@ inline int Texture::getWidth() const {
 
 inline int Texture::getHeight() const {
 	return this->height;
+}
+unsigned int Texture::getId() const {
+	return this->id;
 }

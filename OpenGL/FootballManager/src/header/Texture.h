@@ -18,4 +18,7 @@ public:
 
 	inline int getWidth() const;
 	inline int getHeight() const;
+	unsigned int getId() const;
+	//만약 inline으로 설정하면 오류가 생김. => 외부 참조를 하면 시스템상 컴파일러가 인식을 못함.
+
 };

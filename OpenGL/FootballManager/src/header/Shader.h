@@ -17,6 +17,8 @@ struct ShaderProgramSource
 class Shader {
 private:
 	unsigned int id;
+	unsigned int vs;
+	unsigned int fs;
 	std::string filepath;
 	std::map<std::string, int> cache_location;
 

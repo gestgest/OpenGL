@@ -23,6 +23,7 @@
 #include "src/header/imgui/imgui_impl_opengl3.h"
 
 #include "src/header/panel/PanelColor.h"
+#include "src/header/panel/ModelPositionPanel.h"
 #include "src/header/panel/Menu.h"
 
 #define MODEL_SIZE 2
@@ -102,12 +103,14 @@ int main()
 
 
     panel::Panel* current_panel = NULL;
+    panel::Panel* delete_panel = NULL;
     panel::Menu* menu = new panel::Menu(current_panel);
+    bool isDelete = false;
 
     current_panel = menu;
-    menu->addItems<panel::PanelColor>("name");
-
-
+    menu->addItems<panel::PanelColor>("color");
+    menu->addItems<panel::ModelPositionPanel>("texture");
+    
     // 렌더링 루프
     while (!glfwWindowShouldClose(window))
     {
@@ -125,11 +128,13 @@ int main()
             //버튼을 누르거나 menu가 아닌 경우
             if (current_panel != menu && ImGui::Button("<-")) 
             {
+                //isDelete = true;
                 delete current_panel;
                 current_panel = menu;
             }
             current_panel->onImGUIRender(); //GUI 그리는 함수
             ImGui::End();
+
         }
 
         
@@ -138,6 +143,7 @@ int main()
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
     }
 
     ImGui_ImplOpenGL3_Shutdown();
@@ -153,7 +159,7 @@ int main()
 
 /*
 
-    ///////////////////////////////////////////////////////////////변수
+    ///////////////////////////////////////////////////////////////변수 => 나중에 클래스 따로 만들 예정
 
     float dx = 512.0f, dy = 445.0f;
     glm::vec3 trans_pos[2];

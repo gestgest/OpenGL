@@ -10,12 +10,17 @@ Shader::Shader(const std::string& filepath)
 
 Shader::~Shader()
 {
-    GLCHECK(glDeleteShader(id));
+    if (glIsShader(id)) {
+        GLCHECK(glDeleteShader(id));
+    }
+    //std::cout << id << '\n';
+    //std::cout << "Invalid shader ID : " << id << std::endl; => 좀 거슬리긴 한데 뭐 id를 삭제했으니까
 }
 
 
 ShaderProgramSource Shader::parseShader()
 {
+    //main.cpp 위치를 기준으로 
     std::ifstream stream(filepath);
     //std::cout << filepath << '\n';
 
@@ -63,8 +68,8 @@ unsigned int Shader::createShader(const std::string& vertexShader, const std::st
 {
     //프로그램을 만든다.
     unsigned int program = glCreateProgram();
-    unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader); //vertexShader를 만듬
-    unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader); //fragmentShader를 만듬
+    vs = compileShader(GL_VERTEX_SHADER, vertexShader); //vertexShader를 만듬
+    fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader); //fragmentShader를 만듬
 
     glAttachShader(program, vs);
     glAttachShader(program, fs);
@@ -183,4 +188,3 @@ int Shader::getUniformLocation(const std::string& name)
 
     return cache_location[name];
 }
-

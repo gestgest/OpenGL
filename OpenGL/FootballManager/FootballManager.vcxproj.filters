@@ -99,6 +99,9 @@
     <ClCompile Include="src\cpp\panel\PanelColor.cpp">
       <Filter>소스 파일\src\panel</Filter>
     </ClCompile>
+    <ClCompile Include="src\cpp\panel\ModelPositionPanel.cpp">
+      <Filter>소스 파일\src\panel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\basic.shader">
@@ -172,6 +175,9 @@
       <Filter>헤더 파일\panel</Filter>
     </ClInclude>
     <ClInclude Include="src\header\panel\PanelColor.h">
+      <Filter>헤더 파일\panel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\panel\ModelPositionPanel.h">
       <Filter>헤더 파일\panel</Filter>
     </ClInclude>
   </ItemGroup>

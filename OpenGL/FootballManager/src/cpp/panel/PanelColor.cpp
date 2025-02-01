@@ -6,9 +6,7 @@ namespace panel
 {
 	PanelColor::PanelColor()
 	{
-		//컬러들은 PanelColor 안에 있음
-
-		//뭐 메인 소스들 다 여기에 넣던데?
+		//대충 VAO, IB, 
 		color[0] = 0.0f;
 		color[1] = 0.0f;
 		color[2] = 0.0f;
