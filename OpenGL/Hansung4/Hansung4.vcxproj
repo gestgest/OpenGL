@@ -19,12 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{24d47819-7f8c-4f29-87bc-8b265843b62e}</ProjectGuid>
-    <RootNamespace>FootballManager</RootNamespace>
+    <ProjectGuid>{181bddd9-d19d-4c4f-b0aa-fa60917167ef}</ProjectGuid>
+    <RootNamespace>Hansung4</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>OpenGL_Test</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -71,31 +70,21 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\include;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);..\lib;</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Library\GLFW\include;$(SolutionDir)Library\GLEW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Library\GLFW\lib-vc2019;$(SolutionDir)Library\GLEW\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -109,25 +98,20 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Library\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Library\GLFW\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -141,63 +125,16 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\cpp\DebugRenderer.cpp" />
-    <ClCompile Include="src\cpp\panel\Menu.cpp" />
-    <ClCompile Include="src\cpp\panel\ModelPositionPanel.cpp" />
-    <ClCompile Include="src\cpp\panel\PanelColor.cpp" />
-    <ClCompile Include="src\cpp\imgui\imgui.cpp" />
-    <ClCompile Include="src\cpp\imgui\imgui_demo.cpp" />
-    <ClCompile Include="src\cpp\imgui\imgui_draw.cpp" />
-    <ClCompile Include="src\cpp\imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="src\cpp\imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="src\cpp\imgui\imgui_tables.cpp" />
-    <ClCompile Include="src\cpp\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="src\cpp\IndexBuffer.cpp" />
-    <ClCompile Include="src\cpp\Renderer.cpp" />
-    <ClCompile Include="src\cpp\Shader.cpp" />
-    <ClCompile Include="src\cpp\stb\stb_image.cpp" />
-    <ClCompile Include="src\cpp\Texture.cpp" />
-    <ClCompile Include="src\cpp\VertexBuffer.cpp" />
-    <ClCompile Include="src\cpp\VertexArray.cpp" />
-    <ClCompile Include="src\cpp\VertexBufferLayout.cpp" />
+    <ClCompile Include="src\glad.c" />
+    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="imgui.ini" />
-    <None Include="res\basic.shader" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="res\texture\thunder.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\header\DebugRenderer.h" />
-    <ClInclude Include="src\header\panel\Menu.h" />
-    <ClInclude Include="src\header\panel\ModelPositionPanel.h" />
-    <ClInclude Include="src\header\panel\panel.h" />
-    <ClInclude Include="src\header\panel\PanelColor.h" />
-    <ClInclude Include="src\header\imgui\imconfig.h" />
-    <ClInclude Include="src\header\imgui\imgui.h" />
-    <ClInclude Include="src\header\imgui\imgui_impl_glfw.h" />
-    <ClInclude Include="src\header\imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="src\header\imgui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="src\header\imgui\imgui_internal.h" />
-    <ClInclude Include="src\header\imgui\imstb_rectpack.h" />
-    <ClInclude Include="src\header\imgui\imstb_textedit.h" />
-    <ClInclude Include="src\header\imgui\imstb_truetype.h" />
-    <ClInclude Include="src\header\IndexBuffer.h" />
-    <ClInclude Include="src\header\Renderer.h" />
-    <ClInclude Include="src\header\Shader.h" />
-    <ClInclude Include="src\header\stb_image.h" />
-    <ClInclude Include="src\header\Texture.h" />
-    <ClInclude Include="src\header\VertexArray.h" />
-    <ClInclude Include="src\header\VertexBuffer.h" />
-    <ClInclude Include="src\header\VertexBufferLayout.h" />
+    <ClInclude Include="..\Include\glad\glad.h" />
+    <ClInclude Include="..\Include\KHR\khrplatform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

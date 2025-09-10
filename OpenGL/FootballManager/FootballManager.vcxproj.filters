@@ -107,6 +107,7 @@
     <None Include="res\basic.shader">
       <Filter>소스 파일\shader</Filter>
     </None>
+    <None Include="imgui.ini" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\texture\thunder.png">
