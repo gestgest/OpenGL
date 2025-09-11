@@ -16,6 +16,12 @@
     <Filter Include="소스 파일\Library">
       <UniqueIdentifier>{f2a440d9-6006-42c9-b915-b12e123366eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\vs">
+      <UniqueIdentifier>{3f24a2a4-f3e0-4f2b-91f8-868d3b71bb48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\fs">
+      <UniqueIdentifier>{e917ee31-c67b-48b9-9c24-b80a7529b9e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp">
@@ -23,6 +29,9 @@
     </ClCompile>
     <ClCompile Include="src\glad.c">
       <Filter>소스 파일\Library</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solarsystem_sun_2planets_hw.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -32,5 +41,25 @@
     <ClInclude Include="..\Include\KHR\khrplatform.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\vs\solarsystem_star.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\vs\solarsystem_planet.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\fs\solarsystem_planet.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\fs\solarsystem_star.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
   </ItemGroup>
 </Project>

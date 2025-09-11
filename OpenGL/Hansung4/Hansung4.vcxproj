@@ -130,11 +130,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\solarsystem_sun_2planets_hw.cpp" />
     <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\glad\glad.h" />
     <ClInclude Include="..\Include\KHR\khrplatform.h" />
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\fs\solarsystem_planet.fs" />
+    <None Include="src\fs\solarsystem_star.fs" />
+    <None Include="src\vs\solarsystem_planet.vs" />
+    <None Include="src\vs\solarsystem_star.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
