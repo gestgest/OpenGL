@@ -1,5 +1,5 @@
 #version 330 core
-out vec4 FragColor;
+out vec4 fragColor;
 
 struct Material {
     vec3 ambient;
@@ -8,6 +8,7 @@ struct Material {
     float shininess;
 };
 
+//
 struct Light {
     vec3 position;
     vec3 ambient;
@@ -15,7 +16,7 @@ struct Light {
     vec3 specular;
 };
 
-in vec3 Normal;  
+in vec3 Normal;
 in vec2 TexCoord;
 in vec3 FragPos;  
 
@@ -47,5 +48,5 @@ void main()
      vec3 ambient = light.ambient * material.ambient;
             
     vec3 result = ambient + diffuse + specular;
-    FragColor = vec4(result, 1.0);
+    fragColor = vec4(result, 1.0);
 } 
