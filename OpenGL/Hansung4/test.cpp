@@ -88,30 +88,30 @@ unsigned int texture_sun, texture_mercury, texture_venus, texture_earth, texture
 unsigned int texture_mars, texture_jupiter, texture_saturn, texture_uranus, texture_neptune;
 
 
-//오예
-void setMatPlants(Shader & planetShader, glm::mat4 & sun_model, unsigned int & sphereVAO, int & nSphereVert)
+//생성 그리기
+float setMatPlant(Shader & planetShader, glm::mat4 & basic_model, unsigned int & sphereVAO, int & nSphereVert, unsigned int texture, const float revp, const float radi, const float rotp, float dist)
 {
-	// mercury 	
-	// -----------
 	// world transformation
-	float dist = radi_sun + 3 * radi_mercury; //태양 반지름 + 자기 반지름 3번
-	glm::mat4 model = sun_model;
+	dist = dist + radi_sun + 3 * radi; //태양 반지름 + 자기 반지름 3번
+	glm::mat4 model = basic_model;
 
 	//mercury를 다른 걸로 바꿔야함
-	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// y축 공전 the revolution of the earth
+	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp, glm::vec3(0.0f, 1.0f, 0.0f));	// y축 공전 the revolution of the earth
 	model = glm::translate(model, glm::vec3(dist, 0.0f, 0.0f));						// 
-	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the earth
-	model = glm::scale(model, glm::vec3(radi_mercury, radi_mercury, radi_mercury)); //크기조정
+	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the earth
+	model = glm::scale(model, glm::vec3(radi, radi, radi)); //크기조정
 	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
 	planetShader.setMat4("model", model);
 
 	// bind textures on corresponding texture units
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture_mercury);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	// render the sphere
 	glBindVertexArray(sphereVAO);
 	glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
+
+	return dist;
 }
 
 int main()
@@ -129,10 +129,10 @@ int main()
 #endif
 
 	// glfw window creation => 윈도우 제목 바꿔라
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2071375_안진혁", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2071375", NULL, NULL);
 	if (window == NULL)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		std::cout << "Failed to create GLFW window안돼" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
@@ -236,18 +236,22 @@ int main()
 		starShader.setVec3("light.diffuse", diffuseColor);
 		starShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 		starShader.setVec3("light.position", lightPos);
+
 		// material properties
 		starShader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
 		starShader.setVec3("material.diffuse", 0.9f, 0.9f, 0.9f);
 		starShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
 		starShader.setFloat("material.shininess", 20.0f);
 
+		
+		glm::mat4 model = glm::mat4(1.0f);//단위행렬
+		model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		glm::mat4 basic_model = model;
+
 		//sun?
 		// world transformation
-		//단위행렬
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 sun_model = model;
+		//setMatPlant();
+		//Shader & planetShader, glm::mat4 & basic_model, unsigned int & sphereVAO, int & nSphereVert, unsigned int texture, const float revp, const float radi, const float rotp
 		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_sun, glm::vec3(0.0f, 1.0f, 0.0f));	// the rotation of the sun
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(radi_sun, radi_sun, radi_sun));
@@ -290,48 +294,18 @@ int main()
 		planetShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
 		planetShader.setFloat("material.shininess", 20.0f);
 
+		float dist = 0;
 		// mercury 	
-		// -----------
-		// world transformation
-		float dist = radi_sun + 3 * radi_mercury; //태양 반지름 + 자기 반지름 3번
-		model = sun_model;
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// y축 공전 the revolution of the earth
-		model = glm::translate(model, glm::vec3(dist, 0.0f, 0.0f));						// 
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the earth
-		model = glm::scale(model, glm::vec3(radi_mercury, radi_mercury, radi_mercury)); //크기조정
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
-		planetShader.setMat4("model", model);
-
-		// bind textures on corresponding texture units
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_mercury);
-
-		// render the sphere
-		glBindVertexArray(sphereVAO);
-		glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
+		//Shader & planetShader, glm::mat4 & basic_model, unsigned int & sphereVAO, int & nSphereVert, unsigned int texture, const float revp, const float radi, const float rotp
+		dist = setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_mercury, revp_mercury, radi_mercury, rotp_mercury, dist);
 
 		// venus 	
-		// -----------
-		// world transformation
-		dist = dist + 3 * radi_venus;
-		model = sun_model;
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp_venus, glm::vec3(0.0f, 1.0f, 0.0f));	// the revolution of the earth
-		model = glm::translate(model, glm::vec3(dist, 0.0f, 0.0f));						// the translation of the earth from the sun
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_venus, glm::vec3(0.0f, 1.0f, 0.0f));	// the rotation of the earth
-		model = glm::scale(model, glm::vec3(radi_venus, radi_venus, radi_venus));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		planetShader.setMat4("model", model);
+		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_venus, revp_venus, radi_venus, rotp_venus, dist);
 
-		// bind textures on corresponding texture units
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_venus);
-
-		// render the sphere
-		glBindVertexArray(sphereVAO);
-		glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
 
 		// earth 	
-		// -----------
+		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_earth, revp_earth, radi_earth, rotp_earth, dist);
+
 
 		// moon 	 여기다가 적어야함
 		// -----------
@@ -339,23 +313,23 @@ int main()
 		//단 지구의 크기, 자전 제외하고는 다 가져와야함
 		// + trans * 회전
 
-
-		
-
 		// mars 	
-		// -----------
+		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_mars, revp_mars, radi_mars, rotp_mars, dist);
 
 		// jupiter 	
-		// -----------
+		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_jupiter, revp_jupiter, radi_jupiter, rotp_jupiter, dist);
 
 		// saturn 	
 		// -----------
+		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_saturn, revp_saturn, radi_saturn, rotp_saturn, dist);
 
 		// uranus 	
 		// -----------
+		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_uranus, revp_uranus, radi_uranus, rotp_uranus, dist);
 
 		// neptune 	
 		// -----------
+		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_neptune, revp_neptune, radi_neptune, rotp_neptune, dist);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
