@@ -169,6 +169,8 @@
     <ClCompile Include="src\cpp\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Hansung4\Hansung4.vcxproj" />
+    <None Include="..\Hansung4\Hansung4.vcxproj.filters" />
     <None Include="imgui.ini" />
     <None Include="res\basic.shader" />
   </ItemGroup>

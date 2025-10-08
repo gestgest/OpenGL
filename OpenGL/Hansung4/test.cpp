@@ -87,6 +87,8 @@ const float radi_neptune = 0.4f; // 24622.0f;
 unsigned int texture_sun, texture_mercury, texture_venus, texture_earth, texture_moon;
 unsigned int texture_mars, texture_jupiter, texture_saturn, texture_uranus, texture_neptune;
 
+
+//오예
 void setMatPlants(Shader & planetShader, glm::mat4 & sun_model, unsigned int & sphereVAO, int & nSphereVert)
 {
 	// mercury 	
@@ -240,6 +242,7 @@ int main()
 		starShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
 		starShader.setFloat("material.shininess", 20.0f);
 
+		//sun?
 		// world transformation
 		//단위행렬
 		glm::mat4 model = glm::mat4(1.0f);
@@ -257,6 +260,10 @@ int main()
 		// render the sphere
 		glBindVertexArray(sphereVAO);
 		glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
+
+
+
+
 
 		// Planets, moon 	
 		// -----------

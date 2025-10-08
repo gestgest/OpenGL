@@ -108,6 +108,8 @@
       <Filter>소스 파일\shader</Filter>
     </None>
     <None Include="imgui.ini" />
+    <None Include="..\Hansung4\Hansung4.vcxproj" />
+    <None Include="..\Hansung4\Hansung4.vcxproj.filters" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\texture\thunder.png">
