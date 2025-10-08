@@ -87,6 +87,31 @@ const float radi_neptune = 0.4f; // 24622.0f;
 unsigned int texture_sun, texture_mercury, texture_venus, texture_earth, texture_moon;
 unsigned int texture_mars, texture_jupiter, texture_saturn, texture_uranus, texture_neptune;
 
+void setMatPlants(Shader & planetShader, glm::mat4 & sun_model, unsigned int & sphereVAO, int & nSphereVert)
+{
+	// mercury 	
+	// -----------
+	// world transformation
+	float dist = radi_sun + 3 * radi_mercury; //태양 반지름 + 자기 반지름 3번
+	glm::mat4 model = sun_model;
+
+	//mercury를 다른 걸로 바꿔야함
+	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// y축 공전 the revolution of the earth
+	model = glm::translate(model, glm::vec3(dist, 0.0f, 0.0f));						// 
+	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the earth
+	model = glm::scale(model, glm::vec3(radi_mercury, radi_mercury, radi_mercury)); //크기조정
+	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
+	planetShader.setMat4("model", model);
+
+	// bind textures on corresponding texture units
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_mercury);
+
+	// render the sphere
+	glBindVertexArray(sphereVAO);
+	glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
+}
+
 int main()
 {
 	// glfw: initialize and configure
@@ -102,7 +127,7 @@ int main()
 #endif
 
 	// glfw window creation => 윈도우 제목 바꿔라
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Hansung4", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2071375_안진혁", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -216,11 +241,12 @@ int main()
 		starShader.setFloat("material.shininess", 20.0f);
 
 		// world transformation
+		//단위행렬
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		glm::mat4 sun_model = model;
 		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_sun, glm::vec3(0.0f, 1.0f, 0.0f));	// the rotation of the sun
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(radi_sun, radi_sun, radi_sun));
 		starShader.setMat4("model", model);
 
@@ -260,13 +286,13 @@ int main()
 		// mercury 	
 		// -----------
 		// world transformation
-		float dist = radi_sun + 3 * radi_mercury;
+		float dist = radi_sun + 3 * radi_mercury; //태양 반지름 + 자기 반지름 3번
 		model = sun_model;
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// the revolution of the earth
-		model = glm::translate(model, glm::vec3(dist, 0.0f, 0.0f));						// the translation of the earth from the sun
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// the rotation of the earth
-		model = glm::scale(model, glm::vec3(radi_mercury, radi_mercury, radi_mercury));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// y축 공전 the revolution of the earth
+		model = glm::translate(model, glm::vec3(dist, 0.0f, 0.0f));						// 
+		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_mercury, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the earth
+		model = glm::scale(model, glm::vec3(radi_mercury, radi_mercury, radi_mercury)); //크기조정
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
 		planetShader.setMat4("model", model);
 
 		// bind textures on corresponding texture units
@@ -300,8 +326,14 @@ int main()
 		// earth 	
 		// -----------
 
-		// moon 	
+		// moon 	 여기다가 적어야함
 		// -----------
+		//태양 기준으로 I와 시야각만 가져오고 나머지 버림
+		//단 지구의 크기, 자전 제외하고는 다 가져와야함
+		// + trans * 회전
+
+
+		
 
 		// mars 	
 		// -----------
