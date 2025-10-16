@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="human.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\solarsystem_sun_2planets_hw.cpp" />
     <ClCompile Include="test.cpp" />
