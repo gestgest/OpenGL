@@ -47,6 +47,9 @@
     <ClInclude Include="camera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="header\j13.human.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\vs\solarsystem_star.vs">
@@ -59,6 +62,24 @@
       <Filter>소스 파일\fs</Filter>
     </None>
     <None Include="src\fs\solarsystem_star.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\fs\j13.human.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\vs\j13.human.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\vs\14.2.lamp.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\vs\14.2.teapot.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\fs\14.2.lamp.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\fs\14.2.teapot.fs">
       <Filter>소스 파일\fs</Filter>
     </None>
   </ItemGroup>
