@@ -35,6 +35,7 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
 // lighting
 glm::vec3 lightPos(1.2f, 5.0f, 12.0f);
 
@@ -190,7 +191,6 @@ int main()
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
-
 		boneShader.setMat4("projection", projection);
 		boneShader.setMat4("view", view);
 
