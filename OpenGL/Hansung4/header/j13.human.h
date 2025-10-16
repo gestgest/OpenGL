@@ -79,8 +79,7 @@ public:
 			BoneRotate[i] = glm::mix(Pose[p][i], Pose[q][i], t);
 	}
 
-
-	
+	// 그리기
 	void DrawHuman(Shader shader, unsigned int cubeVAO, glm::mat4 model)
 	{
 		glm::mat4 bone = model;
@@ -99,6 +98,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(1.0f, 1.0f / BoneLength[pelvis], 1.0f));
+
 		// draw spine
 		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[pelvis], 0.0f));
 		bone = bone * glm::mat4_cast(BoneRotate[spine]);
@@ -109,6 +109,7 @@ public:
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(1.0f, 1.0f / BoneLength[spine], 1.0f));
 		mspine = bone;
+		
 		// draw neck
 		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[spine], 0.0f));
 		bone = bone * glm::mat4_cast(BoneRotate[neck]);
@@ -118,6 +119,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[neck], 2.0f));
+
 		// draw head
 		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[neck], 0.0f));
 		bone = bone * glm::mat4_cast(BoneRotate[head]);
@@ -127,6 +129,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(1.0f, 1.0f / BoneLength[head], 1.0f));
+
 		// draw clavicleL
 		bone = mspine;
 		bone = glm::translate(bone, glm::vec3(0.5f, BoneLength[spine], 0.0f));
@@ -137,6 +140,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[clavicleL], 2.0f));
+
 		// draw upperarmL
 		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[clavicleL], 0.0f));
 		bone = bone * glm::mat4_cast(BoneRotate[upperarmL]);
@@ -146,6 +150,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[upperarmL], 2.0f));
+
 		// draw forearmL
 		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[upperarmL], 0.0f));
 		bone = bone * glm::mat4_cast(BoneRotate[forearmL]);
@@ -155,6 +160,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[forearmL], 2.0f));
+
 		// draw handL
 		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[forearmL], 0.0f));
 		bone = bone * glm::mat4_cast(BoneRotate[handL]);
@@ -164,6 +170,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[handL], 2.0f));
+
 		// draw clavicleR
 		bone = mspine;
 		bone = glm::translate(bone, glm::vec3(-0.5f, BoneLength[spine], 0.0f));
@@ -174,6 +181,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[clavicleR], 2.0f));
+
 		// draw upperarmR
 		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[clavicleR], 0.0f));
 		bone = bone * glm::mat4_cast(BoneRotate[upperarmR]);
@@ -183,6 +191,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[upperarmR], 2.0f));
+
 		// draw forearmR
 		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[upperarmR], 0.0f));
 		bone = bone * glm::mat4_cast(BoneRotate[forearmR]);
@@ -192,6 +201,7 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[forearmR], 2.0f));
+
 		// draw handR
 		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[forearmR], 0.0f));
 		bone = bone * glm::mat4_cast(BoneRotate[handR]);
@@ -201,10 +211,21 @@ public:
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[handR], 2.0f));
+
 		// draw thighL
 		bone = mpelvis;
-		// ....
-		// draw calfL
+
+		// draw calfL => todo 해야함
+		bone = glm::translate(bone, glm::vec3(0.0f, BoneLength[forearmR], 0.0f));
+		bone = bone * glm::mat4_cast(BoneRotate[calfL]);
+		bone = glm::scale(bone, glm::vec3(0.5f, BoneLength[calfL], 0.5f));
+		shader.setMat4("model", bone);
+		shader.setVec3("objectColor", 0.5f, 0.0f, 0.0f);
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		bone = glm::scale(bone, glm::vec3(2.0f, 1.0f / BoneLength[calfL], 2.0f));
+		
+
 		// draw footL
 		// draw toeL
 		// draw thighR
