@@ -5,6 +5,7 @@ struct Material {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+    vec3 emission;  // 새로 추가: 발광 컴포넌트
     float shininess;
 };
 
@@ -29,23 +30,26 @@ uniform vec3 eyePos;
 
 void main()
 {
-
-    // diffuse term
+    //diffuse term
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = light.diffuse * (texture(texture1, TexCoord).rgb);
     //vec3 diffuse = light.diffuse * (diff * material.diffuse);
-    vec3 diffuse = light.diffuse * (diff * texture(texture1, TexCoord).rgb);
+    //vec3 diffuse = light.diffuse * (diff * texture(texture1, TexCoord).rgb);
 
 	// specular term 
     vec3 View = normalize(eyePos - FragPos);
 	vec3 refl = 2.0 * norm * dot(norm, lightDir) - lightDir; //    vec3 reflectDir = reflect(-lightDir, norm);  
- 	float spec = pow(max(dot(refl, View), 0.0), material.shininess); 
+ 	float spec = pow(max(dot(refl, View), 0.0), material.shininess);  //계산 식
 	vec3 specular = light.specular * (spec * material.specular);
 
-	// ambient term
+	// ambient term s 외적 m
      vec3 ambient = light.ambient * material.ambient;
             
-    vec3 result = ambient + diffuse + specular;
+    // 수정: emission 추가 (태양만 밝게)
+    vec3 result = (ambient + diffuse + specular) + material.emission;
+    //vec3 result = diffuse;
+
     FragColor = vec4(result, 1.0);
 } 

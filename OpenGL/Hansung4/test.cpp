@@ -41,7 +41,8 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 // lighting => sun 0 0 0
-glm::vec3 lightPos(21.0f, 21.0f, 11.0f);
+//glm::vec3 lightPos(21.0f, 21.0f, 11.0f);
+glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
 // the sun, planets, and moon
 	// 자전주기(일): 태양 25.38일, 수성 58.6462, 금성	-243.0185, 지구	0.99726963,	(달 27.3216) 화성은 1.02595676, 목성은 0.410일, 토성은 0.426일, 천왕성은 0.718일, 해왕성은 0.669일
@@ -93,12 +94,15 @@ unsigned int texture_mars, texture_jupiter, texture_saturn, texture_uranus, text
 float setMatPlant(Shader& planetShader, glm::mat4& basic_model, unsigned int& sphereVAO, int& nSphereVert, unsigned int texture, const float revp, const float radi, const float rotp, float dist)
 {
 	// world transformation
-	dist = dist + (radi_sun + radi) / 2; //태양 반지름 + 자기 반지름 3번
+	dist = dist + radi_sun + radi * 3; //태양 반지름 + 자기 반지름 3번
 	glm::mat4 model = basic_model;
 
 	//mercury를 다른 걸로 바꿔야함
 	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp, glm::vec3(0.0f, 1.0f, 0.0f));	// y축 공전 the revolution of the earth
-	model = glm::translate(model, glm::vec3(dist, 0.0f, 0.0f));						//
+	model = glm::translate(model, glm::vec3(dist, 0.0f, 0.0f));	
+
+	//여기서부터 달은 이동, 회전 시켜야함
+
 	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the earth
 	model = glm::scale(model, glm::vec3(radi, radi, radi)); //크기조정
 	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
@@ -162,7 +166,6 @@ int main()
 	Shader planetShader("src/vs/solarsystem_planet.vs", "src/fs/solarsystem_planet.fs");
 	//Shader planetShader("solarsystem_color.vs", "solarsystem_color.fs");
 	Shader starShader("src/vs/solarsystem_star.vs", "src/fs/solarsystem_star.fs"); //<- todo[ ] : src/fs/solarsystem_star.fs 수정해야함
-
 
 	// sphere VAO and VBO
 	//std::vector <float> data;
@@ -244,6 +247,7 @@ int main()
 		starShader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
 		starShader.setVec3("material.diffuse", 0.9f, 0.9f, 0.9f);
 		starShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
+		starShader.setVec3("material.emission", 0.2f, 0.2f, 0.2f); 
 		starShader.setFloat("material.shininess", 20.0f);
 
 
@@ -307,14 +311,56 @@ int main()
 
 
 		// earth
-		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_earth, revp_earth, radi_earth, rotp_earth, dist);
+		//dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_earth, revp_earth, radi_earth, rotp_earth, dist);
+
+		// world transformation
+		dist = dist + (radi_sun + radi_earth) / 2; //태양 반지름 + 자기 반지름 3번
+		glm::mat4 earth_model = basic_model;
+
+		earth_model = glm::rotate(earth_model, (float)glfwGetTime() * rot_speed / revp_earth, glm::vec3(0.0f, 1.0f, 0.0f));	// y축 공전 the revolution of the earth
+		earth_model = glm::translate(earth_model, glm::vec3(dist, 0.0f, 0.0f));
+		model = earth_model;
+		//여기서부터 달은 이동, 회전 시켜야함
+
+		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_earth, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the earth
+		model = glm::scale(model, glm::vec3(radi_earth, radi_earth, radi_earth)); //크기조정
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
+		planetShader.setMat4("model", model);
+
+		// bind textures on corresponding texture units
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture_earth);
+
+		// render the sphere
+		glBindVertexArray(sphereVAO);
+		glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
 
 
 		// moon 	 여기다가 적어야함
 		// -----------
 		//태양 기준으로 I와 시야각만 가져오고 나머지 버림
 		//단 지구의 크기, 자전 제외하고는 다 가져와야함
+		// 근데 먼저 달을 이동하고 회전해야 하는거아님?
 		// + trans * 회전
+		model = earth_model;
+
+		//지구 주의를 도는 달
+		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp_moon, glm::vec3(0.0f, 1.0f, 0.0f));	
+		model = glm::translate(model, glm::vec3(radi_earth + radi_moon * 3, 0.0f, 0.0f));
+
+		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_moon, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the moon
+		model = glm::scale(model, glm::vec3(radi_moon, radi_moon, radi_moon)); //크기조정
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
+		planetShader.setMat4("model", model);
+
+		// bind textures on corresponding texture units
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture_moon);
+
+		// render the sphere
+		glBindVertexArray(sphereVAO);
+		glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
+
 
 		// mars
 		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_mars, revp_mars, radi_mars, rotp_mars, dist);
@@ -333,6 +379,8 @@ int main()
 		// neptune
 		// -----------
 		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_neptune, revp_neptune, radi_neptune, rotp_neptune, dist);
+
+		
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -509,256 +557,53 @@ void init_sphere(float** vertices, int* nVert, int* nAttr)
 	}
 }
 
+void loadPlants(unsigned int &texture, std::string path, int & width, int& height, int& nrChannels)
+{
+	// texture_earth
+	// ---------
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// load image, create texture and generate mipmaps
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+}
+
 void init_textures()
 {
 	// load and create a texture
 	// -------------------------
 	int width, height, nrChannels;
 	unsigned char* data;
+	
+	loadPlants(texture_sun, "../Hansung4/textures/solarsystem/2k_sun.jpg", width, height, nrChannels);
+	loadPlants(texture_earth, "../Hansung4/textures/solarsystem/2k_earth_daymap.jpg", width, height, nrChannels);
+	loadPlants(texture_moon, "../Hansung4/textures/solarsystem/2k_moon.jpg", width, height, nrChannels);
 
-	// texture_sun
-	// ---------
-	glGenTextures(1, &texture_sun);
-	glBindTexture(GL_TEXTURE_2D, texture_sun);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-	//data = stbi_load("..\\textures\\solarsystem\\2k_sun.jpg", &width, &height, &nrChannels, 0);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_sun.jpg", &width, &height, &nrChannels, 0);
-
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// texture_earth
-	// ---------
-	glGenTextures(1, &texture_earth);
-	glBindTexture(GL_TEXTURE_2D, texture_earth);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-	//data = stbi_load("..\\textures\\solarsystem\\2k_earth_daymap.jpg", &width, &height, &nrChannels, 0);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_earth_daymap.jpg", &width, &height, &nrChannels, 0);
-
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// texture_moon
-	// ---------
-	glGenTextures(1, &texture_moon);
-	glBindTexture(GL_TEXTURE_2D, texture_moon);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_moon.jpg", &width, &height, &nrChannels, 0);
-
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// texture_mercury
-	// ---------
-	glGenTextures(1, &texture_mercury);
-	glBindTexture(GL_TEXTURE_2D, texture_mercury);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_mercury.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// texture_venus
-	// ---------
-	glGenTextures(1, &texture_venus);
-	glBindTexture(GL_TEXTURE_2D, texture_venus);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_venus_surface.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// texture_mars
-	// ---------
-	glGenTextures(1, &texture_mars);
-	glBindTexture(GL_TEXTURE_2D, texture_mars);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_mars.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// texture_jupiter
-	// ---------
-	glGenTextures(1, &texture_jupiter);
-	glBindTexture(GL_TEXTURE_2D, texture_jupiter);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_jupiter.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// texture_saturn
-	// ---------
-	glGenTextures(1, &texture_saturn);
-	glBindTexture(GL_TEXTURE_2D, texture_saturn);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_saturn.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// texture_uranus
-	// ---------
-	glGenTextures(1, &texture_uranus);
-	glBindTexture(GL_TEXTURE_2D, texture_uranus);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_uranus.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// texture_neptune
-	// ---------
-	glGenTextures(1, &texture_neptune);
-	glBindTexture(GL_TEXTURE_2D, texture_neptune);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("../Hansung4/textures/solarsystem/2k_neptune.jpg", &width, &height, &nrChannels, 0);
-
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
+	loadPlants(texture_mercury, "../Hansung4/textures/solarsystem/2k_mercury.jpg", width, height, nrChannels);
+	loadPlants(texture_venus, "../Hansung4/textures/solarsystem/2k_venus_surface.jpg", width, height, nrChannels);
+	loadPlants(texture_mars, "../Hansung4/textures/solarsystem/2k_mars.jpg", width, height, nrChannels);
+	loadPlants(texture_jupiter, "../Hansung4/textures/solarsystem/2k_jupiter.jpg", width, height, nrChannels);
+	loadPlants(texture_saturn, "../Hansung4/textures/solarsystem/2k_saturn.jpg", width, height, nrChannels);
+	loadPlants(texture_uranus, "../Hansung4/textures/solarsystem/2k_uranus.jpg", width, height, nrChannels);
+	loadPlants(texture_neptune, "../Hansung4/textures/solarsystem/2k_neptune.jpg", width, height, nrChannels);
 }
