@@ -1,37 +1,28 @@
-//////////////////////////////////////////
-//		jieunlee@hansung.ac.kr			//
-//		Solar system (Earth)			//
-//		2023. 5. 11						//
-//////////////////////////////////////////
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <string>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
-#define STB_IMAGE_IMPLEMENTATION
-//std_image.h를 이용해서 이미지 열려면 위에 이거 정의해야함
-#include <std_image.h>
-
 #include <../Hansung4/header/shader.h>
 #include <../Hansung4/header/camera.h>
 
+#include <iostream>
+
+#include "../Hansung4/header/j13.human.h"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
-void init_sphere(float**, int*, int*);
-void init_textures();
 
 // settings
-const unsigned int SCR_WIDTH = 1000;
-const unsigned int SCR_HEIGHT = 1000;
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 50.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 20.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -40,91 +31,14 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-// lighting => sun 0 0 0
-//glm::vec3 lightPos(21.0f, 21.0f, 11.0f);
-glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
-
-// the sun, planets, and moon
-	// 자전주기(일): 태양 25.38일, 수성 58.6462, 금성	-243.0185, 지구	0.99726963,	(달 27.3216) 화성은 1.02595676, 목성은 0.410일, 토성은 0.426일, 천왕성은 0.718일, 해왕성은 0.669일
-	// 공전주기(일): 수성 87.97, 금성 224.7, 지구 365.26, (달 27.322) 화성 686.96, 목성 4333.29, 토성 10,756.20,	 천왕성 30,707.49, 	해왕성 60,223.35
-	// rotation periods of the sun, planets, and moon
-const float rotp_sun = 25.38f;
-const float rotp_mercury = 58.6462f;
-const float rotp_venus = 243.0185f;
-const float rotp_earth = 0.99726963f;
-const float rotp_moon = 27.3216f;
-const float rotp_mars = 1.02595676f;
-const float rotp_jupiter = 0.410f;
-const float rotp_saturn = 0.426f;
-const float rotp_uranus = 0.718f;
-const float rotp_neptune = 0.669;
-
-// revolution periods of the planets, and moon
-const float revp_mercury = 87.97f;
-const float revp_venus = 224.7f;
-const float revp_earth = 365.26f;
-const float revp_moon = 27.322f;
-const float revp_mars = 686.96f;
-const float revp_jupiter = 4333.29f;
-const float revp_saturn = 10756.20f;
-const float revp_uranus = 30707.49f;
-const float revp_neptune = 60223.35;
-
-// speed of rotation and revolution
-const float rot_speed = 20.0f;
-
-// scales of the planets, and moon
-const float radi_sun = 6.0f; // 696340.0f;
-const float radi_mercury = 0.24f;	//2439.7f;
-const float radi_venus = 0.60f;	//6051.8f;
-const float radi_earth = 0.63f;	//6371.0f;
-const float radi_moon = 0.17f;	//1737.4f;
-const float radi_mars = 0.3389f;	//3389.5f;
-const float radi_jupiter = 1.0f; // 69911.0f;
-const float radi_saturn = 0.9f; // 58232.0f;
-const float radi_uranus = 0.43f; // 25362.0f;
-const float radi_neptune = 0.4f; // 24622.0f;
-
-// textures
-unsigned int texture_sun, texture_mercury, texture_venus, texture_earth, texture_moon;
-unsigned int texture_mars, texture_jupiter, texture_saturn, texture_uranus, texture_neptune;
-
-
-//생성 그리기
-float setMatPlant(Shader& planetShader, glm::mat4& basic_model, unsigned int& sphereVAO, int& nSphereVert, unsigned int texture, const float revp, const float radi, const float rotp, float dist)
-{
-	// world transformation
-	dist = dist + radi_sun + radi * 3; //태양 반지름 + 자기 반지름 3번
-	glm::mat4 model = basic_model;
-
-	//mercury를 다른 걸로 바꿔야함
-	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp, glm::vec3(0.0f, 1.0f, 0.0f));	// y축 공전 the revolution of the earth
-	model = glm::translate(model, glm::vec3(dist, 0.0f, 0.0f));	
-
-	//여기서부터 달은 이동, 회전 시켜야함
-
-	model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the earth
-	model = glm::scale(model, glm::vec3(radi, radi, radi)); //크기조정
-	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
-	planetShader.setMat4("model", model);
-
-	// bind textures on corresponding texture units
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	// render the sphere
-	glBindVertexArray(sphereVAO);
-	glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
-
-	return dist;
-}
+// lighting
+glm::vec3 lightPos(1.2f, 5.0f, 12.0f);
 
 int main()
 {
 	// glfw: initialize and configure
+	// ------------------------------
 	glfwInit();
-
-	//버전알려주기 3.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -133,23 +47,28 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
 
-	const char title_name[] = {50,48,55,49,51,55,53,32,236,149,136,236,167,132,237,152,129,0};
-	// glfw window creation => 윈도우 제목 바꿔라
+	// glfw window creation
+	// --------------------
+	const char title_name[] = { 50,48,55,49,51,55,53,32,236,149,136,236,167,132,237,152,129,0 };
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, title_name, NULL, NULL);
-	//glfwSetWindowTitle(window, "2071375 안진혁");
+
 	if (window == NULL)
 	{
-		std::cout << "Failed to create GLFW window안돼" << std::endl;
+		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
 
-	// tell GLFW to capture our mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwMakeContextCurrent(window);
+	glfwFocusWindow(window);
+
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	//glfwSetCursorPosCallback(window, mouse_callback);
+	//glfwSetScrollCallback(window, scroll_callback);
+
+	//// tell GLFW to capture our mouse
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -160,45 +79,90 @@ int main()
 	}
 
 	// configure global opengl state
+	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
 
-	// build and compile our shader zprogram => tmi.별과 행성 vs는 같음
-	Shader planetShader("src/vs/solarsystem_planet.vs", "src/fs/solarsystem_planet.fs");
-	//Shader planetShader("solarsystem_color.vs", "solarsystem_color.fs");
-	Shader starShader("src/vs/solarsystem_star.vs", "src/fs/solarsystem_star.fs"); //<- todo[ ] : src/fs/solarsystem_star.fs 수정해야함
+	// build and compile our shader zprogram
+	// ------------------------------------	
+	Shader boneShader("src/vs/j13.human.vs", "src/fs/j13.human.fs");
+	Shader lampShader("src/vs/14.2.lamp.vs", "src/fs/14.2.lamp.fs");
 
-	// sphere VAO and VBO
-	//std::vector <float> data;
-	float* sphereVerts = NULL;
-	int nSphereVert, nSphereAttr;
-	init_sphere(&sphereVerts, &nSphereVert, &nSphereAttr);
+	// set up vertex data (and buffer(s)) and configure vertex attributes
+	// ------------------------------------------------------------------
+	float vertices[] = {
+		-0.5f,  0.0f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.0f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  1.0f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  1.0f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  1.0f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.0f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-	unsigned int sphereVBO, sphereVAO;
-	glGenVertexArrays(1, &sphereVAO);
-	glGenBuffers(1, &sphereVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
-	glBufferData(GL_ARRAY_BUFFER, nSphereVert * nSphereAttr * sizeof(float), sphereVerts, GL_STATIC_DRAW);
+		-0.5f,  0.0f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f,  0.0f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f,  1.0f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f,  1.0f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  1.0f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  0.0f,  0.5f,  0.0f,  0.0f,  1.0f,
 
-	glBindVertexArray(sphereVAO);
+		-0.5f,  1.0f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  1.0f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.0f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.0f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.0f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  1.0f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+		 0.5f,  1.0f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  1.0f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.0f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.0f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.0f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  1.0f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+		-0.5f,  0.0f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f,  0.0f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f,  0.0f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f,  0.0f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f,  0.0f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f,  0.0f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+		-0.5f,  1.0f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  1.0f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  1.0f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  1.0f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  1.0f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  1.0f, -0.5f,  0.0f,  1.0f,  0.0f
+	};
+	// first, configure the cube's VAO (and VBO)
+	unsigned int VBO, cubeVAO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &VBO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindVertexArray(cubeVAO);
+
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// normal attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	// texCoord attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	free(sphereVerts);
 
 
-	// init textures
-	init_textures();
+	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 
 
-	// uncomment this call to draw in wireframe polygons.
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// Human
+	Human human;
 
 	// render loop
 	// -----------
@@ -219,168 +183,49 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-		// sun
-		// -----------
 		// be sure to activate shader when setting uniforms/drawing objects
-		starShader.use();
+		boneShader.use();
+		boneShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		boneShader.setVec3("lightPos", lightPos);
+		boneShader.setVec3("viewPos", camera.Position);
+
 		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
-		starShader.setMat4("projection", projection);
-		starShader.setMat4("view", view);
-
-		// eye position
-		starShader.setVec3("eyePos", camera.Position);
-
-		// draw the sphere object
-		// light properties
-		glm::vec3 lightColor(1.0, 1.0, 1.0);;
-		glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f); // decrease the influence
-		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influenc
-		starShader.setVec3("light.ambient", ambientColor);
-		starShader.setVec3("light.diffuse", diffuseColor);
-		starShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-		starShader.setVec3("light.position", lightPos);
-
-		// material properties
-		starShader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
-		starShader.setVec3("material.diffuse", 0.9f, 0.9f, 0.9f);
-		starShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
-		starShader.setVec3("material.emission", 0.2f, 0.2f, 0.2f); 
-		starShader.setFloat("material.shininess", 20.0f);
-
-
-		glm::mat4 model = glm::mat4(1.0f);//단위행렬
-		model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 basic_model = model;
-
-		//sun?
-		// world transformation
-		//setMatPlant();
-		//Shader & planetShader, glm::mat4 & basic_model, unsigned int & sphereVAO, int & nSphereVert, unsigned int texture, const float revp, const float radi, const float rotp
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_sun, glm::vec3(0.0f, 1.0f, 0.0f));	// the rotation of the sun
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(radi_sun, radi_sun, radi_sun));
-		starShader.setMat4("model", model);
-
-		// bind textures on corresponding texture units
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_sun);
-
-		// render the sphere
-		glBindVertexArray(sphereVAO);
-		glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
-
-
-
-
-
-		// Planets, moon
-		// -----------
-		// be sure to activate shader when setting uniforms/drawing objects
-		planetShader.use();
-		// view/projection transformations
-		planetShader.setMat4("projection", projection);
-		planetShader.setMat4("view", view);
-		// eye position
-		planetShader.setVec3("eyePos", camera.Position);
-
-		// draw the sphere object
-		// light properties
-		//glm::vec3 lightColor(1.0, 1.0, 1.0);;
-		//glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f); // decrease the influence
-		//glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influenc
-		planetShader.setVec3("light.ambient", ambientColor);
-		planetShader.setVec3("light.diffuse", diffuseColor);
-		planetShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-		planetShader.setVec3("light.position", lightPos);
-		// material properties
-		planetShader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
-		planetShader.setVec3("material.diffuse", 0.9f, 0.9f, 0.9f);
-		planetShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
-		planetShader.setFloat("material.shininess", 20.0f);
-
-		float dist = 0;
-		// mercury
-		//Shader & planetShader, glm::mat4 & basic_model, unsigned int & sphereVAO, int & nSphereVert, unsigned int texture, const float revp, const float radi, const float rotp
-		dist = setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_mercury, revp_mercury, radi_mercury, rotp_mercury, dist);
-
-		// venus
-		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_venus, revp_venus, radi_venus, rotp_venus, dist);
-
-
-		// earth
-		//dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_earth, revp_earth, radi_earth, rotp_earth, dist);
+		boneShader.setMat4("projection", projection);
+		boneShader.setMat4("view", view);
 
 		// world transformation
-		dist = dist + (radi_sun + radi_earth) / 2; //태양 반지름 + 자기 반지름 3번
-		glm::mat4 earth_model = basic_model;
+		glm::mat4 model = glm::mat4(1.0f);
+		static float s = 0.0f;
+		s += deltaTime;
+		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, s));
+		boneShader.setMat4("model", model);
 
-		earth_model = glm::rotate(earth_model, (float)glfwGetTime() * rot_speed / revp_earth, glm::vec3(0.0f, 1.0f, 0.0f));	// y축 공전 the revolution of the earth
-		earth_model = glm::translate(earth_model, glm::vec3(dist, 0.0f, 0.0f));
-		model = earth_model;
-		//여기서부터 달은 이동, 회전 시켜야함
+		// render a human
+		//human.SetBoneRotation(upperarmL, glm::angleAxis(glm::radians(30.f), glm::vec3(0.f, 0.f, 1.f)));
+		//human.SetBoneRotation(forearmL, glm::angleAxis(glm::radians(60.f), glm::vec3(0.f, 0.f, 1.f)));
+		//human.SetPose(armLeftUp);
+		static float t = 0.0f;
+		float dt = deltaTime;
+		human.MixPose(base, armLeftUp, t);
+		human.DrawHuman(boneShader, cubeVAO, model);
+		t = t + dt;
+		if (t > 1.0f) t = 0.0f;
 
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_earth, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the earth
-		model = glm::scale(model, glm::vec3(radi_earth, radi_earth, radi_earth)); //크기조정
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
-		planetShader.setMat4("model", model);
+		// also draw the lamp object
+		/*/
+		lampShader.use();
+		lampShader.setMat4("projection", projection);
+		lampShader.setMat4("view", view);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+		lampShader.setMat4("model", model);
 
-		// bind textures on corresponding texture units
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_earth);
-
-		// render the sphere
-		glBindVertexArray(sphereVAO);
-		glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
-
-
-		// moon 	 여기다가 적어야함
-		// -----------
-		//태양 기준으로 I와 시야각만 가져오고 나머지 버림
-		//단 지구의 크기, 자전 제외하고는 다 가져와야함
-		// 근데 먼저 달을 이동하고 회전해야 하는거아님?
-		// + trans * 회전
-		model = earth_model;
-
-		//지구 주의를 도는 달
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / revp_moon, glm::vec3(0.0f, 1.0f, 0.0f));	
-		model = glm::translate(model, glm::vec3(radi_earth + radi_moon * 3, 0.0f, 0.0f));
-
-		model = glm::rotate(model, (float)glfwGetTime() * rot_speed / rotp_moon, glm::vec3(0.0f, 1.0f, 0.0f));	// 자전 the rotation of the moon
-		model = glm::scale(model, glm::vec3(radi_moon, radi_moon, radi_moon)); //크기조정
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
-		planetShader.setMat4("model", model);
-
-		// bind textures on corresponding texture units
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_moon);
-
-		// render the sphere
-		glBindVertexArray(sphereVAO);
-		glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
-
-
-		// mars
-		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_mars, revp_mars, radi_mars, rotp_mars, dist);
-
-		// jupiter
-		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_jupiter, revp_jupiter, radi_jupiter, rotp_jupiter, dist);
-
-		// saturn
-		// -----------
-		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_saturn, revp_saturn, radi_saturn, rotp_saturn, dist);
-
-		// uranus
-		// -----------
-		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_uranus, revp_uranus, radi_uranus, rotp_uranus, dist);
-
-		// neptune
-		// -----------
-		dist += setMatPlant(planetShader, basic_model, sphereVAO, nSphereVert, texture_neptune, revp_neptune, radi_neptune, rotp_neptune, dist);
-
-		
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		*/
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -390,18 +235,15 @@ int main()
 
 	// optional: de-allocate all resources once they've outlived their purpose:
 	// ------------------------------------------------------------------------
-	glDeleteVertexArrays(1, &sphereVAO);
-	glDeleteBuffers(1, &sphereVBO);
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteVertexArrays(1, &lightVAO);
+	glDeleteBuffers(1, &VBO);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
 	glfwTerminate();
 	return 0;
 }
-
-
-
-
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
@@ -424,7 +266,7 @@ void processInput(GLFWwindow* window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	// make sure the viewport matches the new window dimensions; note that width and
+	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
 }
@@ -447,7 +289,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
+	//camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
@@ -455,155 +297,4 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.ProcessMouseScroll(yoffset);
-}
-
-// initalize vertices of a sphere : position, normal, tex_coords.
-//void initSphere(std::vector <float> data, int* nVert, int* nAttr) => 매개변수 방정식?
-void init_sphere(float** vertices, int* nVert, int* nAttr)
-{
-	//nAttr : 8
-	// sphere: set up vertex data and configure vertex attributes
-	float pi = acosf(-1.0f);	// pi = 3.14152...
-	float pi2 = 2.0f * pi;
-	int nu = 40, nv = 20;
-	const double du = pi2 / nu;
-	const double dv = pi / nv;
-
-	*nVert = (nv - 1) * nu * 6;		// two triangles
-	*nAttr = 8;
-	*vertices = (float*)malloc(sizeof(float) * (*nVert) * (*nAttr));
-
-	float u, v;
-	int k = 0;
-
-	v = 0.0f;
-	u = 0.0f;
-	for (v = (-0.5f) * pi + dv; v < 0.5f * pi - dv; v += dv)
-	{
-		for (u = 0.0f; u < pi2; u += du)
-		{
-			// p(u,v)
-			(*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 	// position (x,y,z)
-			(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal (x,y z)
-			(*vertices)[k++] = u / pi2;				(*vertices)[k++] = (v + 0.5f * pi) / pi;	// texture coords (x t)
-			// 이렇게 해서 8개의 속성 => nAttr
-
-
-			// p(u+du,v)
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	// position
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
-			(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-
-			// p(u,v+dv)
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// position
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
-			(*vertices)[k++] = u / pi2;					(*vertices)[k++] = (v + dv + 0.5f * pi) / pi; // texture coords
-
-			// p(u+du,v)
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	// position
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
-			(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-
-			// p(u+du,v+dv)
-			(*vertices)[k++] = cosf(v + dv) * cosf(u + du);	(*vertices)[k++] = cosf(v + dv) * sinf(u + du);	(*vertices)[k++] = sinf(v + dv); 	// position
-			(*vertices)[k++] = cosf(v + dv) * cosf(u + du);	(*vertices)[k++] = cosf(v + dv) * sinf(u + du);	(*vertices)[k++] = sinf(v + dv);	// normal
-			(*vertices)[k++] = (u + du) / pi2;				(*vertices)[k++] = (v + dv + 0.5f * pi) / pi;  // texture coords
-
-			// p(u,v+dv)
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// position
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
-			(*vertices)[k++] = u / pi2;					(*vertices)[k++] = (v + dv + 0.5f * pi) / pi; // texture coords
-		}
-	}
-	// triangles around north pole and south pole
-	for (u = 0.0f; u < pi2; u += du)
-	{
-		// triangles around north pole
-		// p(u,pi/2-dv)
-		v = 0.5f * pi - dv;
-		(*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 	// position
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal
-		(*vertices)[k++] = u / pi2;				(*vertices)[k++] = (v + 0.5f * pi) / pi;	// texture coords
-
-		// p(u+du,pi/2-dv)
-		v = 0.5f * pi - dv;
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v); 	// position
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);		// normal
-		(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-
-		// p(u,pi/2) = (0, 1. 0)  ~ north pole
-		v = 0.5f * pi;
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	 // position
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		 // normal
-		(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = 1.0f;  // texture coords
-
-		// triangles around south pole
-		// p(u,-pi/2) = (0, -1, 0)  ~ south pole
-		v = (-0.5f) * pi;
-		(*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 		// position
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);			// normal
-		(*vertices)[k++] = u / pi2;				(*vertices)[k++] = 0.0f; // texture coords
-
-		// p(u+du,-pi/2+dv)
-		v = (-0.5f) * pi + dv;
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);	// position
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);	// normal
-		(*vertices)[k++] = (u + du) / pi2;				(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-
-		// p(u,-pi/2+dv)
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u); (*vertices)[k++] = sinf(v);	// position
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u); (*vertices)[k++] = sinf(v);	// normal
-		(*vertices)[k++] = u / pi2;					(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-	}
-}
-
-void loadPlants(unsigned int &texture, std::string path, int & width, int& height, int& nrChannels)
-{
-	// texture_earth
-	// ---------
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
-
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-}
-
-void init_textures()
-{
-	// load and create a texture
-	// -------------------------
-	int width, height, nrChannels;
-	unsigned char* data;
-	
-	loadPlants(texture_sun, "../Hansung4/textures/solarsystem/2k_sun.jpg", width, height, nrChannels);
-	loadPlants(texture_earth, "../Hansung4/textures/solarsystem/2k_earth_daymap.jpg", width, height, nrChannels);
-	loadPlants(texture_moon, "../Hansung4/textures/solarsystem/2k_moon.jpg", width, height, nrChannels);
-
-	loadPlants(texture_mercury, "../Hansung4/textures/solarsystem/2k_mercury.jpg", width, height, nrChannels);
-	loadPlants(texture_venus, "../Hansung4/textures/solarsystem/2k_venus_surface.jpg", width, height, nrChannels);
-	loadPlants(texture_mars, "../Hansung4/textures/solarsystem/2k_mars.jpg", width, height, nrChannels);
-	loadPlants(texture_jupiter, "../Hansung4/textures/solarsystem/2k_jupiter.jpg", width, height, nrChannels);
-	loadPlants(texture_saturn, "../Hansung4/textures/solarsystem/2k_saturn.jpg", width, height, nrChannels);
-	loadPlants(texture_uranus, "../Hansung4/textures/solarsystem/2k_uranus.jpg", width, height, nrChannels);
-	loadPlants(texture_neptune, "../Hansung4/textures/solarsystem/2k_neptune.jpg", width, height, nrChannels);
 }
