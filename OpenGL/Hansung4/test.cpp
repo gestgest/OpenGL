@@ -22,7 +22,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 20.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -33,6 +33,7 @@ float lastFrame = 0.0f;
 
 // lighting
 glm::vec3 lightPos(1.2f, 5.0f, 12.0f);
+Human_Pose human_pose = armLeftUp;
 
 int main()
 {
@@ -145,6 +146,7 @@ int main()
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
 	// normal attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
@@ -206,9 +208,10 @@ int main()
 		//human.SetBoneRotation(upperarmL, glm::angleAxis(glm::radians(30.f), glm::vec3(0.f, 0.f, 1.f)));
 		//human.SetBoneRotation(forearmL, glm::angleAxis(glm::radians(60.f), glm::vec3(0.f, 0.f, 1.f)));
 		//human.SetPose(armLeftUp);
+
 		static float t = 0.0f;
 		float dt = deltaTime;
-		human.MixPose(base, armLeftUp, t);
+		human.MixPose(base, human_pose, t);
 		human.DrawHuman(boneShader, cubeVAO, model);
 		t = t + dt;
 		if (t > 1.0f) t = 0.0f;
@@ -260,6 +263,12 @@ void processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+		human_pose = walking;
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+		human_pose = armLeftUp;
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+		human_pose = walking;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
