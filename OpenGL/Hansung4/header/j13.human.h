@@ -34,7 +34,6 @@ const int POSENUM = 3;
 
 
 
-
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Human
 {
@@ -61,11 +60,12 @@ public:
 		SetPose(base);
 	}
 
-	void drawObject(Shader &shader, unsigned int & cubeVAO, glm::mat4& bone, int index, glm::vec3 color, glm::vec3 addPos, float thickSize = 1.0f)
+	void drawObject(Shader &shader, unsigned int & cubeVAO, glm::mat4& bone, int index, glm::vec3 color, glm::vec3 addPos, glm::vec3 rotatePos, float thickSize = 1.0f)
 	{
 		bone = glm::translate(bone, addPos);
 
-		bone = bone * glm::mat4_cast(BoneRotate[index]); 
+		
+		bone = bone * glm::mat4_cast(BoneRotate[index]); //회전을 행렬로 변환 => 회전 원점은 왼쪽 아래
 		bone = glm::scale(bone, glm::vec3(thickSize, BoneLength[index], thickSize));
 		shader.setMat4("model", bone);
 		shader.setVec3("objectColor", color);
@@ -105,81 +105,82 @@ public:
 		glm::mat4 bone = model;
 		glm::mat4 mspine; //상체라인 => 나중에 기억해서 다시 복귀해야함
 		glm::mat4 mpelvis = model; //골반 => 나중에 기억해서 다시 복귀해야함
+		glm::vec3 defaultRotatePos = glm::vec3(0, 0, 0);
 
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		// draw pelvis
 		bone = mpelvis;
-		drawObject(shader, cubeVAO, bone, pelvis, glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0, 0, 0));
+		drawObject(shader, cubeVAO, bone, pelvis, glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0, 0, 0), defaultRotatePos);
 
 
 		// draw spine
-		drawObject(shader, cubeVAO, bone, spine, glm::vec3(1.0f, 0.5f, 0.3f), glm::vec3(0, BoneLength[pelvis], 0));
+		drawObject(shader, cubeVAO, bone, spine, glm::vec3(1.0f, 0.5f, 0.3f), glm::vec3(0, BoneLength[pelvis], 0), defaultRotatePos);
 		mspine = bone;
 
 		//draw neck
-		drawObject(shader, cubeVAO, bone, neck, glm::vec3(0.0f, 0.5f, 1.0f), glm::vec3(0, BoneLength[spine], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, neck, glm::vec3(0.0f, 0.5f, 1.0f), glm::vec3(0, BoneLength[spine], 0), defaultRotatePos, 0.5f);
 
 		// draw head
-		drawObject(shader, cubeVAO, bone, head, glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(0, BoneLength[neck], 0));
+		drawObject(shader, cubeVAO, bone, head, glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(0, BoneLength[neck], 0), defaultRotatePos);
 
 		// draw clavicleL
 		bone = mspine;
-		drawObject(shader, cubeVAO, bone, clavicleL, glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(0.5f, BoneLength[spine], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, clavicleL, glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(0.5f, BoneLength[spine], 0), defaultRotatePos, 0.5f);
 
 		// draw upperarmL
-		drawObject(shader, cubeVAO, bone, upperarmL, glm::vec3(0.3f, 0.0f, 0.7f), glm::vec3(0, BoneLength[clavicleL], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, upperarmL, glm::vec3(0.3f, 0.0f, 0.7f), glm::vec3(0, BoneLength[clavicleL], 0), defaultRotatePos, 0.5f);
 
 		// draw forearmL
-		drawObject(shader, cubeVAO, bone, forearmL, glm::vec3(0.7f, 0.0f, 0.5f), glm::vec3(0, BoneLength[upperarmL], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, forearmL, glm::vec3(0.7f, 0.0f, 0.5f), glm::vec3(0, BoneLength[upperarmL], 0), defaultRotatePos, 0.5f);
 
 
 		// draw handL
-		drawObject(shader, cubeVAO, bone, handL, glm::vec3(0.0f, 0.5f, 0.5f), glm::vec3(0, BoneLength[forearmL], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, handL, glm::vec3(0.0f, 0.5f, 0.5f), glm::vec3(0, BoneLength[forearmL], 0), defaultRotatePos, 0.5f);
 
 
 		// draw clavicleR
 		bone = mspine;
-		drawObject(shader, cubeVAO, bone, clavicleR, glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(-0.5f, BoneLength[spine], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, clavicleR, glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(-0.5f, BoneLength[spine], 0), defaultRotatePos, 0.5f);
 
 		// draw upperarmR
-		drawObject(shader, cubeVAO, bone, upperarmR, glm::vec3(0.3f, 0.0f, 0.7f), glm::vec3(0, BoneLength[clavicleR], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, upperarmR, glm::vec3(0.3f, 0.0f, 0.7f), glm::vec3(0, BoneLength[clavicleR], 0), defaultRotatePos, 0.5f);
 
 		// draw forearmR
-		drawObject(shader, cubeVAO, bone, forearmR, glm::vec3(0.7f, 0.0f, 0.5f), glm::vec3(0, BoneLength[upperarmR], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, forearmR, glm::vec3(0.7f, 0.0f, 0.5f), glm::vec3(0, BoneLength[upperarmR], 0), defaultRotatePos, 0.5f);
 
 		// draw handR
-		drawObject(shader, cubeVAO, bone, handR, glm::vec3(0.0f, 0.5f, 0.5f), glm::vec3(0, BoneLength[forearmR], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, handR, glm::vec3(0.0f, 0.5f, 0.5f), glm::vec3(0, BoneLength[forearmR], 0), defaultRotatePos, 0.5f);
 
 		// 하체
 		// 오른쪽 하체
 		// draw thighL
 		bone = mpelvis;
-		drawObject(shader, cubeVAO, bone, thighL, glm::vec3(0.5882353f, 0.29411765f, 0.0f), glm::vec3(0.75f, BoneLength[pelvis] -BoneLength[thighL], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, thighL, glm::vec3(0.5882353f, 0.29411765f, 0.0f), glm::vec3(0.75f, BoneLength[pelvis] -BoneLength[thighL], 0), defaultRotatePos, 0.5f);
 
 		// draw calfL
-		drawObject(shader, cubeVAO, bone, calfL, glm::vec3(0.3882353f, 0.19411765f, 0.5f), glm::vec3(0.0f, -BoneLength[calfL], 0.0f), 0.5f);
+		drawObject(shader, cubeVAO, bone, calfL, glm::vec3(0.3882353f, 0.19411765f, 0.5f), glm::vec3(0.0f, -BoneLength[calfL], 0.0f), defaultRotatePos, 0.5f);
 
 		// draw footL
-		drawObject(shader, cubeVAO, bone, footL, glm::vec3(0.2882353f, 0.09411765f, 0.5f), glm::vec3(0.0f, -BoneLength[footL], 0.0f), 0.5f);
+		drawObject(shader, cubeVAO, bone, footL, glm::vec3(0.2882353f, 0.09411765f, 0.5f), glm::vec3(0.0f, -BoneLength[footL], 0.0f), defaultRotatePos, 0.5f);
 
 		// draw toeL
-		drawObject(shader, cubeVAO, bone, toeL, glm::vec3(0.7f, 0.7f, 0.5f), glm::vec3(0.0f, -BoneLength[toeL], 0.0f), 0.5f);
+		drawObject(shader, cubeVAO, bone, toeL, glm::vec3(0.7f, 0.7f, 0.5f), glm::vec3(0.0f, -BoneLength[toeL], 0.0f), defaultRotatePos, 0.5f);
 		//std::cout << "x : " << BoneRotate[toeL].x << "'\ny : " << BoneRotate[toeL].y << "'\nz : " << BoneRotate[toeL].z << "'\nw : " << BoneRotate[toeL].w << '\n';
 
 		//draw thighR
 		bone = mpelvis;
-		drawObject(shader, cubeVAO, bone, thighR, glm::vec3(0.5882353f, 0.29411765f, 0.0f), glm::vec3(-0.75f, BoneLength[pelvis] - BoneLength[thighR], 0), 0.5f);
+		drawObject(shader, cubeVAO, bone, thighR, glm::vec3(0.5882353f, 0.29411765f, 0.0f), glm::vec3(-0.75f, BoneLength[pelvis] - BoneLength[thighR], 0), defaultRotatePos, 0.5f);
 
 		// draw calfR
-		drawObject(shader, cubeVAO, bone, calfR, glm::vec3(0.3882353f, 0.19411765f, 0.5f), glm::vec3(0.0f, -BoneLength[calfR], 0.0f), 0.5f);
+		drawObject(shader, cubeVAO, bone, calfR, glm::vec3(0.3882353f, 0.19411765f, 0.5f), glm::vec3(0.0f, -BoneLength[calfR], 0.0f), defaultRotatePos, 0.5f);
 
 		// draw footR
-		drawObject(shader, cubeVAO, bone, footR, glm::vec3(0.2882353f, 0.09411765f, 0.5f), glm::vec3(0.0f, -BoneLength[footR], 0.0f), 0.5f);
+		drawObject(shader, cubeVAO, bone, footR, glm::vec3(0.2882353f, 0.09411765f, 0.5f), glm::vec3(0.0f, -BoneLength[footR], 0.0f), defaultRotatePos, 0.5f);
 		//std::cout << "x : " << BoneRotate[footR].x << "'\ny : " << BoneRotate[footR].y << "'\nz : " << BoneRotate[footR].z << "'\nw : " << BoneRotate[footR].w << '\n';
 
 		// draw toeR
-		drawObject(shader, cubeVAO, bone, toeR, glm::vec3(0.7f, 0.7f, 0.5f), glm::vec3(0.0f, -BoneLength[toeR], 0.0f), 0.5f);
+		drawObject(shader, cubeVAO, bone, toeR, glm::vec3(0.7f, 0.7f, 0.5f), glm::vec3(0.0f, -BoneLength[toeR], 0.0f), defaultRotatePos, 0.5f);
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
@@ -199,15 +200,15 @@ private:
 
 			switch (p) {
 				//90도
-			case base:
+			case base: //default pose
 				Pose[base][clavicleL] = glm::angleAxis(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f)); //시작점 -90
 				Pose[base][clavicleR] = glm::angleAxis(glm::radians( 90.f), glm::vec3(0.f, 0.f, 1.f)); //시작점 90
 				break;
 			case armLeftUp: //왼쪽 팔 드는거
-				Pose[armLeftUp][clavicleL] = glm::angleAxis(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f));
+				Pose[armLeftUp][clavicleL] = glm::angleAxis(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f)); //고정
 				Pose[armLeftUp][upperarmL] = glm::angleAxis(glm::radians(50.f), glm::vec3(0.f, 0.f, 1.f));
 				Pose[armLeftUp][forearmL] = glm::angleAxis(glm::radians(50.f), glm::vec3(0.f, 0.f, 1.f));
-				Pose[armLeftUp][clavicleR] = glm::angleAxis(glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f)); // 90 ~ 90
+				Pose[armLeftUp][clavicleR] = glm::angleAxis(glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f)); // 고정
 				break;
 			case walking: //걷는 거
 				Pose[walking][clavicleL] = glm::angleAxis(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f)); //시작점 -90
