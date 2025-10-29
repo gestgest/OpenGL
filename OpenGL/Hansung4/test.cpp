@@ -163,6 +163,29 @@ int main()
 	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(0);
+
+	// ========================================
+	//          땅(Ground) VAO/VBO 설정
+	// ========================================
+	float groundVertices[] = {
+		// positions            // normals (위를 향함)
+		 5.0f, -10.0f,  5.0f,   0.0f, 1.0f, 0.0f,
+		-5.0f, -10.0f,  5.0f,   0.0f, 1.0f, 0.0f,
+		-5.0f, -10.0f, -5.0f,   0.0f, 1.0f, 0.0f,
+
+		 5.0f, -10.0f,  5.0f,   0.0f, 1.0f, 0.0f,
+		-5.0f, -10.0f, -5.0f,   0.0f, 1.0f, 0.0f,
+		 5.0f, -10.0f, -5.0f,   0.0f, 1.0f, 0.0f
+	};
+
+	unsigned int groundVAO, groundVBO;
+	glGenVertexArrays(1, &groundVAO);
+	glGenBuffers(1, &groundVBO);
+
+	glBindVertexArray(groundVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, groundVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(groundVertices), groundVertices, GL_STATIC_DRAW);
 
 
 	// Human
@@ -206,6 +229,18 @@ int main()
 		s += deltaTime;
 		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, s));
 		boneShader.setMat4("model", model);
+
+
+
+		// --- 1. 땅 그리기 ---
+		// 땅은 특별한 모델 변환이 필요 없으므로 기본 행렬 사용
+		glm::mat4 groundModel = glm::mat4(1.0f);
+		groundModel = glm::translate(groundModel, glm::vec3(0.0f, -0.5f, 0.0f)); // 땅을 약간 아래로
+		boneShader.setMat4("model", groundModel);
+
+		glBindVertexArray(groundVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 
 		// render a human
 		//human.SetBoneRotation(upperarmL, glm::angleAxis(glm::radians(30.f), glm::vec3(0.f, 0.f, 1.f)));
@@ -269,15 +304,6 @@ int main()
 			if (mytime > 1.0f) mytime = 0.0f; //1초를 넘어서면 컷
 		}
 
-		// --- 1. 땅 그리기 ---
-		// 땅은 특별한 모델 변환이 필요 없으므로 기본 행렬 사용
-		glm::mat4 groundModel = glm::mat4(1.0f);
-		boneShader.setMat4("model", groundModel);
-
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		
-
 		// also draw the lamp object
 		/*/
 		lampShader.use();
@@ -297,12 +323,13 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
 	// optional: de-allocate all resources once they've outlived their purpose:
 	// ------------------------------------------------------------------------
 	glDeleteVertexArrays(1, &cubeVAO);
 	glDeleteVertexArrays(1, &lightVAO);
+	glDeleteVertexArrays(1, &groundVAO); 
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &groundVBO);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
