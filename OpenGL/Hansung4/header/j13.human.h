@@ -25,12 +25,12 @@ enum Human_Bone {		// 20 bones
 //todo : 지금은 포즈 2개지만 더 만들어야 함
 // several poses
 enum Human_Pose {
-	base, armLeftUp, walking
+	base, armLeftUp,idle, walking0, walking1,walking2, walking3,
 };
 
 // Default values
 const int BONENUM = 20; // + 1
-const int POSENUM = 3;
+const int POSENUM = 7;
 
 
 
@@ -64,8 +64,10 @@ public:
 	{
 		bone = glm::translate(bone, addPos);
 
-		
+		bone = glm::translate(bone, rotatePos);
 		bone = bone * glm::mat4_cast(BoneRotate[index]); //회전을 행렬로 변환 => 회전 원점은 왼쪽 아래
+		bone = glm::translate(bone, -rotatePos);
+
 		bone = glm::scale(bone, glm::vec3(thickSize, BoneLength[index], thickSize));
 		shader.setMat4("model", bone);
 		shader.setVec3("objectColor", color);
@@ -156,7 +158,11 @@ public:
 		// 오른쪽 하체
 		// draw thighL
 		bone = mpelvis;
-		drawObject(shader, cubeVAO, bone, thighL, glm::vec3(0.5882353f, 0.29411765f, 0.0f), glm::vec3(0.75f, BoneLength[pelvis] -BoneLength[thighL], 0), defaultRotatePos, 0.5f);
+		drawObject(shader, cubeVAO, bone, thighL, glm::vec3(0.5882353f, 0.29411765f, 0.0f),
+			glm::vec3(0.75f, BoneLength[pelvis] -BoneLength[thighL], 0),
+			glm::vec3(0, - BoneLength[pelvis] + BoneLength[thighL], 0),
+			0.5f
+		);
 
 		// draw calfL
 		drawObject(shader, cubeVAO, bone, calfL, glm::vec3(0.3882353f, 0.19411765f, 0.5f), glm::vec3(0.0f, -BoneLength[calfL], 0.0f), defaultRotatePos, 0.5f);
@@ -170,7 +176,12 @@ public:
 
 		//draw thighR
 		bone = mpelvis;
-		drawObject(shader, cubeVAO, bone, thighR, glm::vec3(0.5882353f, 0.29411765f, 0.0f), glm::vec3(-0.75f, BoneLength[pelvis] - BoneLength[thighR], 0), defaultRotatePos, 0.5f);
+		drawObject(shader, cubeVAO, bone, thighR, 
+			glm::vec3(0.5882353f, 0.29411765f, 0.0f),
+			glm::vec3(-0.75f, BoneLength[pelvis] - BoneLength[thighR], 0),
+			glm::vec3(0, -BoneLength[pelvis] + BoneLength[thighR], 0),
+			0.5f
+		);
 
 		// draw calfR
 		drawObject(shader, cubeVAO, bone, calfR, glm::vec3(0.3882353f, 0.19411765f, 0.5f), glm::vec3(0.0f, -BoneLength[calfR], 0.0f), defaultRotatePos, 0.5f);
@@ -201,30 +212,74 @@ private:
 			switch (p) {
 				//90도
 			case base: //default pose
-				Pose[base][clavicleL] = glm::angleAxis(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f)); //시작점 -90
-				Pose[base][clavicleR] = glm::angleAxis(glm::radians( 90.f), glm::vec3(0.f, 0.f, 1.f)); //시작점 90
+				Pose[p][clavicleL] = glm::angleAxis(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f)); //시작점 -90
+				Pose[p][clavicleR] = glm::angleAxis(glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f)); //시작점 90
 				break;
 			case armLeftUp: //왼쪽 팔 드는거
-				Pose[armLeftUp][clavicleL] = glm::angleAxis(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f)); //고정
-				Pose[armLeftUp][upperarmL] = glm::angleAxis(glm::radians(50.f), glm::vec3(0.f, 0.f, 1.f));
-				Pose[armLeftUp][forearmL] = glm::angleAxis(glm::radians(50.f), glm::vec3(0.f, 0.f, 1.f));
-				Pose[armLeftUp][clavicleR] = glm::angleAxis(glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f)); // 고정
+				Pose[p][clavicleL] = glm::angleAxis(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f)); //고정
+				Pose[p][upperarmL] = glm::angleAxis(glm::radians(50.f), glm::vec3(0.f, 0.f, 1.f));
+				Pose[p][forearmL] = glm::angleAxis(glm::radians(50.f), glm::vec3(0.f, 0.f, 1.f));
+				Pose[p][clavicleR] = glm::angleAxis(glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f)); // 고정
 				break;
-			case walking: //걷는 거
-				Pose[walking][clavicleL] = glm::angleAxis(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f)); //시작점 -90
-				Pose[walking][clavicleR] = glm::angleAxis(glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f)); //시작점 90
+			case idle:
+				Pose[p][clavicleL] = glm::angleAxis(glm::radians(-180.f), glm::vec3(0.f, 0.f, 1.f));
+				Pose[p][clavicleR] = glm::angleAxis(glm::radians(180.f), glm::vec3(0.f, 0.f, 1.f));
+				break;
+			case walking0: //걷는 거
+				Pose[p][clavicleL] = glm::angleAxis(glm::radians(-180.f), glm::vec3(0.f, 0.f, 1.f))
+					* glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][clavicleR] = glm::angleAxis(glm::radians(180.f), glm::vec3(0.f, 0.f, 1.f)
+					* glm::angleAxis(glm::radians(45.0f), glm::vec3(1.f, 0.f, 0.f)));
 
-				Pose[walking][thighL] = glm::angleAxis(glm::radians(-60.f), glm::vec3(1.f, 0.f, 0.f));
-				//Pose[walking][calfL] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
-				//Pose[walking][footL] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
-				//Pose[walking][toeL] = glm::angleAxis(glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
-				Pose[walking][thighR] = glm::angleAxis(glm::radians(-60.f), glm::vec3(1.f, 0.f, 0.f));
-				//Pose[walking][calfR] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
-				//Pose[walking][footR] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
-				//Pose[walking][toeR] = glm::angleAxis(glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][thighL] = glm::angleAxis(glm::radians(45.f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][calfL] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
+				//Pose[p][footL] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
+				//Pose[p][toeL] = glm::angleAxis(glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][thighR] = glm::angleAxis(glm::radians(-45.f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][calfR] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
+				//Pose[walking0][footR] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
+				//Pose[walking0][toeR] = glm::angleAxis(glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
+				break;
+
+			case walking1:
+				Pose[p][clavicleL] = glm::angleAxis(glm::radians(-180.f), glm::vec3(0.f, 0.f, 1.f))
+					* glm::angleAxis(glm::radians(0.0f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][clavicleR] = glm::angleAxis(glm::radians(180.f), glm::vec3(0.f, 0.f, 1.f)
+					* glm::angleAxis(glm::radians(0.0f), glm::vec3(1.f, 0.f, 0.f)));
+
+				Pose[p][thighL] = glm::angleAxis(glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][calfL] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
+				//Pose[p][calfR] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
+				//Pose[p][thighR] = glm::angleAxis(glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
+				break;
+
+			case walking2:
+				Pose[p][clavicleL] = glm::angleAxis(glm::radians(-180.f), glm::vec3(0.f, 0.f, 1.f))
+					* glm::angleAxis(glm::radians(45.0f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][clavicleR] = glm::angleAxis(glm::radians(180.f), glm::vec3(0.f, 0.f, 1.f)
+					* glm::angleAxis(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f)));
+
+				Pose[p][thighL] = glm::angleAxis(glm::radians(-45.f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][thighR] = glm::angleAxis(glm::radians(45.f), glm::vec3(1.f, 0.f, 0.f));
+
+				//Pose[p][calfL] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
+				//Pose[p][calfR] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
+				break;
+
+			case walking3:
+				Pose[p][clavicleL] = glm::angleAxis(glm::radians(-180.f), glm::vec3(0.f, 0.f, 1.f))
+					* glm::angleAxis(glm::radians(0.0f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][clavicleR] = glm::angleAxis(glm::radians(180.f), glm::vec3(0.f, 0.f, 1.f)
+					* glm::angleAxis(glm::radians(0.0f), glm::vec3(1.f, 0.f, 0.f)));
+
+				Pose[p][thighL] = glm::angleAxis(glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
+				Pose[p][thighR] = glm::angleAxis(glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
+
+				//Pose[p][calfL] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
+				//Pose[p][calfR] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
 				break;
 			default:
-				;
+				break;
 			};
 		}
 	}

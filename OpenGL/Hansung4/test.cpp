@@ -22,7 +22,8 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
+//Camera camera(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
+Camera camera(glm::vec3(10.0f, 20.0f, 10.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -33,7 +34,8 @@ float lastFrame = 0.0f;
 
 // lighting
 glm::vec3 lightPos(1.2f, 5.0f, 12.0f);
-Human_Pose human_pose = armLeftUp;
+Human_Pose human_pose = base;
+static float mytime = 0;
 
 int main()
 {
@@ -190,10 +192,11 @@ int main()
 		boneShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 		boneShader.setVec3("lightPos", lightPos);
 		boneShader.setVec3("viewPos", camera.Position);
+		
 
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 view = glm::lookAt(camera.Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)));
 		boneShader.setMat4("projection", projection);
 		boneShader.setMat4("view", view);
 
@@ -209,12 +212,42 @@ int main()
 		//human.SetBoneRotation(forearmL, glm::angleAxis(glm::radians(60.f), glm::vec3(0.f, 0.f, 1.f)));
 		//human.SetPose(armLeftUp);
 
-		static float t = 0.0f;
+		//std::cout << "time : " << mytime << '\n';
 		float dt = deltaTime;
-		human.MixPose(base, human_pose, t);
-		human.DrawHuman(boneShader, cubeVAO, model);
-		t = t + dt;
-		if (t > 1.0f) t = 0.0f;
+
+		//걷는 중
+		if (walking0 <= human_pose && human_pose <= walking3)
+		{
+			int before = human_pose - 1;
+			if (human_pose == walking0)
+			{
+				before = idle;
+			}
+			mytime = mytime + dt;
+			human.MixPose((Human_Pose)before, human_pose, mytime * 2); //t값에 따라 저장 => start ~ end?
+			human.DrawHuman(boneShader, cubeVAO, model);
+
+			//연계 애니메이션
+			if (mytime > 0.5f)
+			{
+				mytime = 0.0f; //0.5초를 넘어서면 컷
+				before = human_pose + 1;
+				if (before > walking3)
+				{
+					before = walking0;
+				}
+				human_pose = (Human_Pose)before;
+			}
+
+		}
+		else {
+			mytime = mytime + dt;
+			human.MixPose(base, human_pose, mytime); //t값에 따라 저장 => start ~ end?
+			human.DrawHuman(boneShader, cubeVAO, model);
+			if (mytime > 1.0f) mytime = 0.0f; //1초를 넘어서면 컷
+		}
+
+		
 
 		// also draw the lamp object
 		/*/
@@ -264,11 +297,20 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-		human_pose = walking;
+	{
+		human_pose = walking0;
+		mytime = 0;
+	}
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+	{
 		human_pose = armLeftUp;
+		mytime = 0;
+	}
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
-		human_pose = walking;
+	{
+		human_pose = idle;
+		mytime = 0;
+	}
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
