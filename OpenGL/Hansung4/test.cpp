@@ -160,23 +160,26 @@ int main()
 	glBindVertexArray(lightVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+
+	//땅땅
 	glEnableVertexAttribArray(0);
 
 	// ========================================
 	//          땅(Ground) VAO/VBO 설정
 	// ========================================
 	float groundVertices[] = {
-		// positions            // normals (위를 향함)
-		 5.0f, -10.0f,  5.0f,   0.0f, 1.0f, 0.0f,
-		-5.0f, -10.0f,  5.0f,   0.0f, 1.0f, 0.0f,
-		-5.0f, -10.0f, -5.0f,   0.0f, 1.0f, 0.0f,
+		// positions            // normals 
+		 25.0f, -5.0f,  25.0f,   0.0f, 1.0f, 0.0f,
+		-25.0f, -5.0f,  25.0f,   0.0f, 1.0f, 0.0f,
+		-25.0f, -5.0f, -25.0f,   0.0f, 1.0f, 0.0f,
 
-		 5.0f, -10.0f,  5.0f,   0.0f, 1.0f, 0.0f,
-		-5.0f, -10.0f, -5.0f,   0.0f, 1.0f, 0.0f,
-		 5.0f, -10.0f, -5.0f,   0.0f, 1.0f, 0.0f
+		 25.0f, -5.0f,  25.0f,   0.0f, 1.0f, 0.0f,
+		-25.0f, -5.0f, -25.0f,   0.0f, 1.0f, 0.0f,
+		 25.0f, -5.0f, -25.0f,   0.0f, 1.0f, 0.0f
 	};
 
 	unsigned int groundVAO, groundVBO;
@@ -187,9 +190,17 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, groundVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(groundVertices), groundVertices, GL_STATIC_DRAW);
 
+	// 1. 위치(Position) 속성 (layout (location = 0))
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// 2. 법선(Normal) 속성 (layout (location = 1))
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	// Human
 	Human human;
+	float dis = 0; 
 
 	// render loop
 	// -----------
@@ -225,9 +236,13 @@ int main()
 
 		// world transformation
 		glm::mat4 model = glm::mat4(1.0f);
-		static float s = 0.0f;
-		s += deltaTime;
-		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, s));
+
+		if (walking0 <= human_pose && human_pose <= walking3)
+		{
+			dis += deltaTime;
+		}
+
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, dis));
 		boneShader.setMat4("model", model);
 
 

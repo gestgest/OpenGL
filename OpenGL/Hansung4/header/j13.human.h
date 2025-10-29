@@ -128,7 +128,12 @@ public:
 
 		// draw clavicleL
 		bone = mspine;
-		drawObject(shader, cubeVAO, bone, clavicleL, glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(0.5f, BoneLength[spine], 0), defaultRotatePos, 0.5f);
+		drawObject(shader, cubeVAO, bone, clavicleL,
+			glm::vec3(0.0f, 0.7f, 0.0f),
+			glm::vec3(0.25f, BoneLength[spine] - 0.5f, 0),
+			glm::vec3(0.25f, 0, 0.25f),
+			0.5f
+		);
 
 		// draw upperarmL
 		drawObject(shader, cubeVAO, bone, upperarmL, glm::vec3(0.3f, 0.0f, 0.7f), glm::vec3(0, BoneLength[clavicleL], 0), defaultRotatePos, 0.5f);
@@ -143,7 +148,14 @@ public:
 
 		// draw clavicleR
 		bone = mspine;
-		drawObject(shader, cubeVAO, bone, clavicleR, glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(-0.5f, BoneLength[spine], 0), defaultRotatePos, 0.5f);
+
+		drawObject(shader, cubeVAO, bone, clavicleR,
+			glm::vec3(0.0f, 0.7f, 0.0f),
+			glm::vec3(-0.25f, BoneLength[spine] - 0.5f, 0),
+			glm::vec3(-0.25f, 0, -0.25f),
+			0.5f
+		);
+
 
 		// draw upperarmR
 		drawObject(shader, cubeVAO, bone, upperarmR, glm::vec3(0.3f, 0.0f, 0.7f), glm::vec3(0, BoneLength[clavicleR], 0), defaultRotatePos, 0.5f);
@@ -286,6 +298,7 @@ private:
 				//Pose[p][calfL] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
 				//Pose[p][calfR] = glm::angleAxis(glm::radians(50.f), glm::vec3(1.f, 0.f, 0.f));
 				break;
+
 			case sitting0:
 				//idle
 				Pose[p][clavicleL] = glm::angleAxis(glm::radians(-180.f), glm::vec3(0.f, 0.f, 1.f));
