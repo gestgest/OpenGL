@@ -238,7 +238,29 @@ int main()
 				}
 				human_pose = (Human_Pose)before;
 			}
+		}
+		else if (human_pose == idle )
+		{
+			mytime = mytime + dt;
+			human.MixPose(sitting0, human_pose, mytime * 1); //t값에 따라 저장 => start ~ end?
+			human.DrawHuman(boneShader, cubeVAO, model);
+			if (mytime > 1.0f)
+			{
+				mytime = 0.0f;
+				human_pose = sitting0;
+			}
+		}
+		else if (human_pose == sitting0 )
+		{
+			mytime = mytime + dt;
+			human.MixPose(idle, human_pose, mytime * 1); //t값에 따라 저장 => start ~ end?
+			human.DrawHuman(boneShader, cubeVAO, model);
 
+			if (mytime > 1.0f)
+			{
+				mytime = 0.0f; //1초를 넘어서면 컷
+				human_pose = idle;
+			}
 		}
 		else {
 			mytime = mytime + dt;
@@ -247,6 +269,13 @@ int main()
 			if (mytime > 1.0f) mytime = 0.0f; //1초를 넘어서면 컷
 		}
 
+		// --- 1. 땅 그리기 ---
+		// 땅은 특별한 모델 변환이 필요 없으므로 기본 행렬 사용
+		glm::mat4 groundModel = glm::mat4(1.0f);
+		boneShader.setMat4("model", groundModel);
+
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		
 
 		// also draw the lamp object
@@ -308,7 +337,7 @@ void processInput(GLFWwindow* window)
 	}
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
 	{
-		human_pose = idle;
+		human_pose = sitting0;
 		mytime = 0;
 	}
 }
