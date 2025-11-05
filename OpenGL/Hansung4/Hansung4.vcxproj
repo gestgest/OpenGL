@@ -139,7 +139,7 @@
     <ClInclude Include="..\Include\KHR\khrplatform.h" />
     <ClInclude Include="header\camera.h" />
     <ClInclude Include="header\j13.human.h" />
-    <ClInclude Include="shader.h" />
+    <ClInclude Include="header\shader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\fs\14.2.lamp.fs" />
