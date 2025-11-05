@@ -108,7 +108,7 @@ float setMatPlant(Shader& planetShader, glm::mat4& basic_model, unsigned int& sp
 	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //북극을 위로
 	planetShader.setMat4("model", model);
 
-	// bind textures on corresponding texture units
+	//택스쳐
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -162,27 +162,35 @@ int main()
 	// configure global opengl state
 	glEnable(GL_DEPTH_TEST);
 
-	// build and compile our shader zprogram => tmi.별과 행성 vs는 같음
 	Shader planetShader("src/vs/solarsystem_planet.vs", "src/fs/solarsystem_planet.fs");
-	//Shader planetShader("solarsystem_color.vs", "solarsystem_color.fs");
-	Shader starShader("src/vs/solarsystem_star.vs", "src/fs/solarsystem_star.fs"); //<- todo[ ] : src/fs/solarsystem_star.fs 수정해야함
+	Shader starShader("src/vs/solarsystem_star.vs", "src/fs/solarsystem_star.fs");
 
 	// sphere VAO and VBO
 	//std::vector <float> data;
 	float* sphereVerts = NULL;
-	int nSphereVert, nSphereAttr;
+	int nSphereVert, nSphereAttr; 
+	
+	//vertex 갯수 : 19 * 40 * 6(삼각형 2개)  , 한 삼각형의 속성 갯수 : 8
 	init_sphere(&sphereVerts, &nSphereVert, &nSphereAttr);
 
 	unsigned int sphereVBO, sphereVAO;
 	glGenVertexArrays(1, &sphereVAO);
-	glGenBuffers(1, &sphereVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
-	glBufferData(GL_ARRAY_BUFFER, nSphereVert * nSphereAttr * sizeof(float), sphereVerts, GL_STATIC_DRAW); //그리라는 뜻인가?
+
+	//버퍼 설정
+	glGenBuffers(1, &sphereVBO); //1만큼 사이즈 생성
+	glBindBuffer(GL_ARRAY_BUFFER, sphereVBO); //sphereVBO를 현재 작업할 버퍼로 활성화
+	glBufferData(GL_ARRAY_BUFFER, nSphereVert * nSphereAttr * sizeof(float), sphereVerts, GL_STATIC_DRAW); 
+	//버퍼에 데이터를 넣어라. cpu => gpu
+	
+	//이후 glVertexAttribPointer => 넣은 데이터 설정은 대충 이런 형태다 설명
+	// 정점 활성화
+	// 그리는 함수 : glDrawArrays(GL_TRIANGLES, 0, nSphereVert);함수로 그리면 됨
 
 	glBindVertexArray(sphereVAO);
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(0); //0번째 vertexAttribArray 활성화
+
 	// normal attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
@@ -193,7 +201,6 @@ int main()
 	glEnableVertexAttribArray(2);
 
 	free(sphereVerts);
-
 
 	// init textures
 	init_textures();
@@ -276,8 +283,8 @@ int main()
 
 
 		// Planets, moon
-		// -----------
-		// be sure to activate shader when setting uniforms/drawing objects
+
+		//셰이더 적용
 		planetShader.use();
 		// view/projection transformations
 		planetShader.setMat4("projection", projection);
@@ -468,6 +475,7 @@ void init_sphere(float** vertices, int* nVert, int* nAttr)
 	const double du = pi2 / nu;
 	const double dv = pi / nv;
 
+	//19 * 40 * 6
 	*nVert = (nv - 1) * nu * 6;		// two triangles
 	*nAttr = 8;
 	*vertices = (float*)malloc(sizeof(float) * (*nVert) * (*nAttr));
