@@ -24,6 +24,7 @@
     <ProjectGuid>{f922ed5a-2bb2-4a9e-b00b-1c91939bd124}</ProjectGuid>
     <RootNamespace>OpenGLproject</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>MineCraft</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

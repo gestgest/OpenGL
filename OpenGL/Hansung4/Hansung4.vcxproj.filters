@@ -27,20 +27,17 @@
     <ClCompile Include="test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="src\glad.c">
-      <Filter>소스 파일\Library</Filter>
-    </ClCompile>
     <ClCompile Include="src\solarsystem_sun_2planets_hw.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="human.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="src\glad.c">
+      <Filter>소스 파일\Library</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\glad\glad.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\KHR\khrplatform.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -51,6 +48,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="header\j13.human.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\glad\glad.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

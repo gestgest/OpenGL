@@ -1,9 +1,4 @@
 /*
-//////////////////////////////////////////
-//		jieunlee@hansung.ac.kr			//
-//		2020. 10. 12					//
-//////////////////////////////////////////
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -17,7 +12,6 @@
 #include <iostream>
 
 #include "../Hansung4/header/j13.human.h"
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -28,7 +22,8 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 20.0f));
+//Camera camera(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
+Camera camera(glm::vec3(10.0f, 20.0f, 10.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -39,6 +34,8 @@ float lastFrame = 0.0f;
 
 // lighting
 glm::vec3 lightPos(1.2f, 5.0f, 12.0f);
+Human_Pose human_pose = base;
+static float mytime = 0;
 
 int main()
 {
@@ -55,20 +52,26 @@ int main()
 
 	// glfw window creation
 	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2071375 an", NULL, NULL);
+	const char title_name[] = { 50,48,55,49,51,55,53,32,236,149,136,236,167,132,237,152,129,0 };
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, title_name, NULL, NULL);
+
 	if (window == NULL)
 	{
-		std::cout << "Failed to create GLFW window no" << std::endl;
+		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
+
 	glfwMakeContextCurrent(window);
+	glfwFocusWindow(window);
+
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	//glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
+	//glfwSetScrollCallback(window, scroll_callback);
 
-	// tell GLFW to capture our mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//// tell GLFW to capture our mouse
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -83,13 +86,14 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	// build and compile our shader zprogram
-	// ------------------------------------
+	// ------------------------------------	
 	Shader boneShader("src/vs/j13.human.vs", "src/fs/j13.human.fs");
 	Shader lampShader("src/vs/14.2.lamp.vs", "src/fs/14.2.lamp.fs");
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	float vertices[] = {
+		//앞면, 삼각형 두개
 		-0.5f,  0.0f, -0.5f,  0.0f,  0.0f, -1.0f,
 		 0.5f,  0.0f, -0.5f,  0.0f,  0.0f, -1.0f,
 		 0.5f,  1.0f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -125,6 +129,7 @@ int main()
 		-0.5f,  0.0f,  0.5f,  0.0f, -1.0f,  0.0f,
 		-0.5f,  0.0f, -0.5f,  0.0f, -1.0f,  0.0f,
 
+		//삼각형 두개
 		-0.5f,  1.0f, -0.5f,  0.0f,  1.0f,  0.0f,
 		 0.5f,  1.0f, -0.5f,  0.0f,  1.0f,  0.0f,
 		 0.5f,  1.0f,  0.5f,  0.0f,  1.0f,  0.0f,
@@ -145,6 +150,7 @@ int main()
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
 	// normal attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
@@ -156,13 +162,47 @@ int main()
 	glBindVertexArray(lightVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 
+	//땅땅
+	glEnableVertexAttribArray(0);
+
+	// ========================================
+	//          땅(Ground) VAO/VBO 설정
+	// ========================================
+	float groundVertices[] = {
+		// positions            // normals 
+		 25.0f, -5.0f,  25.0f,   0.0f, 1.0f, 0.0f,
+		-25.0f, -5.0f,  25.0f,   0.0f, 1.0f, 0.0f,
+		-25.0f, -5.0f, -25.0f,   0.0f, 1.0f, 0.0f,
+
+		 25.0f, -5.0f,  25.0f,   0.0f, 1.0f, 0.0f,
+		-25.0f, -5.0f, -25.0f,   0.0f, 1.0f, 0.0f,
+		 25.0f, -5.0f, -25.0f,   0.0f, 1.0f, 0.0f
+	};
+
+	unsigned int groundVAO, groundVBO;
+	glGenVertexArrays(1, &groundVAO);
+	glGenBuffers(1, &groundVBO);
+
+	glBindVertexArray(groundVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, groundVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(groundVertices), groundVertices, GL_STATIC_DRAW);
+
+	// 1. 위치(Position) 속성 (layout (location = 0))
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// 2. 법선(Normal) 속성 (layout (location = 1))
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
 	// Human
 	Human human;
+	float dis = 0;
 
 	// render loop
 	// -----------
@@ -189,55 +229,111 @@ int main()
 		boneShader.setVec3("lightPos", lightPos);
 		boneShader.setVec3("viewPos", camera.Position);
 
+
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 view = glm::lookAt(camera.Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)));
 		boneShader.setMat4("projection", projection);
 		boneShader.setMat4("view", view);
 
 		// world transformation
 		glm::mat4 model = glm::mat4(1.0f);
-		static float s = 0.0f;
-		s += deltaTime;
-		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, s));
+
+		if (walking0 <= human_pose && human_pose <= walking3)
+		{
+			dis += deltaTime;
+		}
+
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, dis));
 		boneShader.setMat4("model", model);
+
+
+
+		// --- 1. 땅 그리기 ---
+		// 땅은 특별한 모델 변환이 필요 없으므로 기본 행렬 사용
+		glm::mat4 groundModel = glm::mat4(1.0f);
+		groundModel = glm::translate(groundModel, glm::vec3(0.0f, -0.5f, 0.0f)); // 땅을 약간 아래로
+		boneShader.setMat4("model", groundModel);
+
+		glBindVertexArray(groundVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 
 		// render a human
 		//human.SetBoneRotation(upperarmL, glm::angleAxis(glm::radians(30.f), glm::vec3(0.f, 0.f, 1.f)));
 		//human.SetBoneRotation(forearmL, glm::angleAxis(glm::radians(60.f), glm::vec3(0.f, 0.f, 1.f)));
+		//human.SetPose(armLeftUp);
 
-
-		//human.SetPose(armLeftUp); => 포즈
-		static float t = 0.0f;
+		//std::cout << "time : " << mytime << '\n';
 		float dt = deltaTime;
-		human.MixPose(base, armLeftUp, t);
-		human.DrawHuman(boneShader, cubeVAO, model);
-		t = t + dt;
-		if (t > 1.0f) t = 0.0f;
+
+		//걷는 중
+		if (walking0 <= human_pose && human_pose <= walking3)
+		{
+			int before = human_pose - 1;
+			if (human_pose == walking0)
+			{
+				before = idle;
+			}
+			mytime = mytime + dt;
+			human.MixPose((Human_Pose)before, human_pose, mytime * 2); //t값에 따라 저장 => start ~ end?
+			human.DrawHuman(boneShader, cubeVAO, model);
+
+			//연계 애니메이션
+			if (mytime > 0.5f)
+			{
+				mytime = 0.0f; //0.5초를 넘어서면 컷
+				before = human_pose + 1;
+				if (before > walking3)
+				{
+					before = walking0;
+				}
+				human_pose = (Human_Pose)before;
+			}
+		}
+		else if (human_pose == idle)
+		{
+			mytime = mytime + dt;
+			human.MixPose(sitting0, human_pose, mytime * 1); //t값에 따라 저장 => start ~ end?
+			human.DrawHuman(boneShader, cubeVAO, model);
+			if (mytime > 1.0f)
+			{
+				mytime = 0.0f;
+				human_pose = sitting0;
+			}
+		}
+		else if (human_pose == sitting0)
+		{
+			mytime = mytime + dt;
+			human.MixPose(idle, human_pose, mytime * 1); //t값에 따라 저장 => start ~ end?
+			human.DrawHuman(boneShader, cubeVAO, model);
+
+			if (mytime > 1.0f)
+			{
+				mytime = 0.0f; //1초를 넘어서면 컷
+				human_pose = idle;
+			}
+		}
+		else {
+			mytime = mytime + dt;
+			human.MixPose(base, human_pose, mytime); //t값에 따라 저장 => start ~ end?
+			human.DrawHuman(boneShader, cubeVAO, model);
+			if (mytime > 1.0f) mytime = 0.0f; //1초를 넘어서면 컷
+		}
 
 		// also draw the lamp object
-		//lampShader.use();
-		//lampShader.setMat4("projection", projection);
-		//lampShader.setMat4("view", view);
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, lightPos);
-		//model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-		//lampShader.setMat4("model", model);
-
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
 	// optional: de-allocate all resources once they've outlived their purpose:
 	// ------------------------------------------------------------------------
 	glDeleteVertexArrays(1, &cubeVAO);
 	glDeleteVertexArrays(1, &lightVAO);
+	glDeleteVertexArrays(1, &groundVAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &groundVBO);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
@@ -260,6 +356,21 @@ void processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+	{
+		human_pose = walking0;
+		mytime = 0;
+	}
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+	{
+		human_pose = armLeftUp;
+		mytime = 0;
+	}
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+	{
+		human_pose = sitting0;
+		mytime = 0;
+	}
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -289,7 +400,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
+	//camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
