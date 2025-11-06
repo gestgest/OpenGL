@@ -85,5 +85,11 @@
     <None Include="src\fs\14.2.teapot.fs">
       <Filter>소스 파일\fs</Filter>
     </None>
+    <None Include="src\vs\70.1.particle.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\fs\70.1.particle.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
   </ItemGroup>
 </Project>
