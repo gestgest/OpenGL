@@ -1,10 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <../Snowman/header/camera.h>
+#include <../Hansung4/header/shader.h>
+#include <../Hansung4/header/camera.h>
+
 #include <iostream>
 
-
-#include <iostream>
 using namespace std;
 
 #define nParticles 300
@@ -23,6 +23,8 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 Camera camera(glm::vec3(10.0f, 20.0f, 10.0f));
+glm::vec3 lightPos(1.2f, 5.0f, 12.0f);
+
 
 //mouse
 float lastX = SCR_WIDTH / 2.0f;
@@ -63,6 +65,9 @@ int main()
         return -1;
     }
 
+    //glEnable(GL_DEPTH_TEST);
+    Shader groundShader("src/vs/j13.human.vs", "src/fs/j13.human.fs");
+    //Shader groundShader("src/vs/solarsystem_planet.vs", "src/fs/solarsystem_planet.fs");
 
     // ========================================
     //          땅(Ground) VAO/VBO 설정
@@ -94,10 +99,6 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-		// draw the particles
-		glBindVertexArray(particleVAO);
-		glDrawArrays(GL_POINTS, 0, nParticles);
-		glBindVertexArray(0);
 
     // render loop
     // -----------
@@ -107,6 +108,23 @@ int main()
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
+        //셰이더 행렬 미리 적용
+        groundShader.use();
+
+        // view/projection transformations
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = glm::lookAt(camera.Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)));
+        groundShader.setMat4("projection", projection);
+        groundShader.setMat4("view", view);
+
+
+        // draw the sphere object
+        // light properties
+        glm::vec3 lightColor(1.0, 1.0, 1.0);;
+        groundShader.setVec3("lightColor", lightColor);
+        groundShader.setVec3("lightPos", lightPos);
+        groundShader.setVec3("viewPos", camera.Position);
 
         // input
         // -----
@@ -121,11 +139,12 @@ int main()
         // 땅은 특별한 모델 변환이 필요 없으므로 기본 행렬 사용
         glm::mat4 groundModel = glm::mat4(1.0f);
         groundModel = glm::translate(groundModel, glm::vec3(0.0f, -0.5f, 0.0f)); // 땅을 약간 아래로
+        groundShader.setMat4("model", groundModel);
 
-        //쎼이더
+        groundShader.setVec3("objectColor", glm::vec3(0.1f, 1.0f, 0.0f));
 
-        glBindVertexArray(groundVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        //glBindVertexArray(groundVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6); //삼각형
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

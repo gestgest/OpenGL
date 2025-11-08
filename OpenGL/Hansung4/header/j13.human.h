@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <vector>
+//#include <../Hansung4/header/shader.h>
 
 //팰비스 : 골반
 // Bones in a Human skeleton

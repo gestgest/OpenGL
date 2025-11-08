@@ -16,6 +16,7 @@ struct Light {
     vec3 specular;
 };
 
+//vs에 있는 out 변수들
 in vec3 Normal;
 in vec2 TexCoord;
 in vec3 FragPos;  

@@ -32,5 +32,8 @@
     <ClInclude Include="header\camera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="header\shader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

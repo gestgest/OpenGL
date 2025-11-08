@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClInclude Include="..\Include\glad\glad.h" />
     <ClInclude Include="header\camera.h" />
+    <ClInclude Include="header\shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
