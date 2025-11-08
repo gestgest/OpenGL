@@ -138,6 +138,7 @@
     <ClInclude Include="..\Include\glad\glad.h" />
     <ClInclude Include="..\Include\KHR\khrplatform.h" />
     <ClInclude Include="header\camera.h" />
+    <ClInclude Include="header\homework3.h" />
     <ClInclude Include="header\j13.human.h" />
     <ClInclude Include="header\shader.h" />
   </ItemGroup>
