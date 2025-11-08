@@ -78,6 +78,9 @@ int main()
         glfwPollEvents();
     }
 
+    //glDeleteVertexArrays(1, &groundVAO);
+    //glDeleteBuffers(1, &groundVBO);
+
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
