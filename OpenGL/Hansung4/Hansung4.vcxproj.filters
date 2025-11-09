@@ -94,5 +94,11 @@
     <None Include="src\fs\70.1.particle.fs">
       <Filter>소스 파일\fs</Filter>
     </None>
+    <None Include="src\vs\ground.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\fs\ground.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
   </ItemGroup>
 </Project>

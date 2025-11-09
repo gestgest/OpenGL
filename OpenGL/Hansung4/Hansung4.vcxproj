@@ -146,12 +146,14 @@
     <None Include="src\fs\14.2.lamp.fs" />
     <None Include="src\fs\14.2.teapot.fs" />
     <None Include="src\fs\70.1.particle.fs" />
+    <None Include="src\fs\ground.fs" />
     <None Include="src\fs\j13.human.fs" />
     <None Include="src\fs\solarsystem_planet.fs" />
     <None Include="src\fs\solarsystem_star.fs" />
     <None Include="src\vs\14.2.lamp.vs" />
     <None Include="src\vs\14.2.teapot.vs" />
     <None Include="src\vs\70.1.particle.vs" />
+    <None Include="src\vs\ground.vs" />
     <None Include="src\vs\j13.human.vs" />
     <None Include="src\vs\solarsystem_planet.vs" />
     <None Include="src\vs\solarsystem_star.vs" />

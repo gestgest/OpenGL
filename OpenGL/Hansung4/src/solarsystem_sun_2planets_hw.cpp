@@ -604,8 +604,8 @@ void init_textures()
 	int width, height, nrChannels;
 	unsigned char* data;
 
-	loadPlants(texture_sun, "../Hansung4/textures/solarsystem/2k_sun.jpg", width, height, nrChannels);
-	loadPlants(texture_earth, "../Hansung4/textures/solarsystem/2k_earth_daymap.jpg", width, height, nrChannels);
+	loadPlants(texture_sun, "../Hansung4/textures/plane/Wood_Panels_basecolor.png", width, height, nrChannels);
+	loadPlants(texture_earth, "../Hansung4/textures/solarsystem.jpg", width, height, nrChannels);
 	loadPlants(texture_moon, "../Hansung4/textures/solarsystem/2k_moon.jpg", width, height, nrChannels);
 
 	loadPlants(texture_mercury, "../Hansung4/textures/solarsystem/2k_mercury.jpg", width, height, nrChannels);
@@ -616,5 +616,5 @@ void init_textures()
 	loadPlants(texture_uranus, "../Hansung4/textures/solarsystem/2k_uranus.jpg", width, height, nrChannels);
 	loadPlants(texture_neptune, "../Hansung4/textures/solarsystem/2k_neptune.jpg", width, height, nrChannels);
 }
-
 */
+

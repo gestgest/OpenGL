@@ -26,7 +26,7 @@ bool isInBoundary(float a, float b, float size_a, float size_b)
         (
             a - size_a < b - size_b &&
             a - size_a < b + size_b
-            )
+        )
     {
         return false;
     }
@@ -39,6 +39,7 @@ class Object
 protected:
     unsigned int vao;
     unsigned int vbo;
+    Shader* shader;
 
     glm::vec3 scale;
     glm::vec3 position;
@@ -60,26 +61,30 @@ public:
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
     }
-
-    void drawObject(Shader& shader, Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
+    void setShader(Shader& shader)
     {
+        this->shader = &shader;
+    }
+
+    void drawObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
+    {
+        //fs 셰이더 속성은 drawObject위에
+        
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = glm::lookAt(camera.Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)));
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
+        //glm::mat4 view = camera.GetViewMatrix();
 
-        // draw the sphere object
-        // light properties
-        shader.setVec3("lightColor", lightColor);
-        shader.setVec3("lightPos", lightPos);
-        shader.setVec3("viewPos", camera.Position);
+        shader->setMat4("projection", projection);
+        shader->setMat4("view", view);
+
+        shader->setVec3("lightColor", lightColor);
+        shader->setVec3("lightPos", lightPos);
+        shader->setVec3("viewPos", camera.Position);
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, position);
-        shader.setMat4("model", model);
-
-        shader.setVec3("objectColor", color);
+        shader->setMat4("model", model);
 
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 6); //삼각형
@@ -146,6 +151,7 @@ public:
 
 class Ground : public Object
 {
+    unsigned int *texture;
 public:
     Ground()
     {
@@ -153,14 +159,14 @@ public:
         isStatic = true;
         
         float groundVertices[] = {
-            // positions            // normals 
-             12.0f, -1.0f,  12.0f,   0.0f, 1.0f, 0.0f,
-            -12.0f, -1.0f,  12.0f,   0.0f, 1.0f, 0.0f,
-            -12.0f, -1.0f, -12.0f,   0.0f, 1.0f, 0.0f,
+            // positions            // normals          //textures
+             12.0f, -1.0f,  12.0f,   0.0f, 1.0f, 0.0f,  12.0f, 12.0f,
+            -12.0f, -1.0f,  12.0f,   0.0f, 1.0f, 0.0f,  0.0f, 12.0f,
+            -12.0f, -1.0f, -12.0f,   0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
 
-             12.0f, -1.0f,  12.0f,   0.0f, 1.0f, 0.0f,
-            -12.0f, -1.0f, -12.0f,   0.0f, 1.0f, 0.0f,
-             12.0f, -1.0f, -12.0f,   0.0f, 1.0f, 0.0f
+             12.0f, -1.0f,  12.0f,   0.0f, 1.0f, 0.0f,  12.0f, 12.0f,
+            -12.0f, -1.0f, -12.0f,   0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+             12.0f, -1.0f, -12.0f,   0.0f, 1.0f, 0.0f,  12.0f, 0.0f
         };
 
         glGenVertexArrays(1, &vao);
@@ -171,17 +177,33 @@ public:
         glBufferData(GL_ARRAY_BUFFER, sizeof(groundVertices), groundVertices, GL_STATIC_DRAW);
 
         // 1. 위치(Position) 속성 (layout (location = 0))
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
         // 2. 법선(Normal) 속성 (layout (location = 1))
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+        // texCoord attribute (layout (location = 2))
+        //index, 속성 갯수, 타입, 
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
     }
 
-    void drawObject(Shader& shader, Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
+    void setTexture(unsigned int &texture)
     {
-        Object::drawObject(shader, camera, lightColor, lightPos, color);
+        this->texture = &texture;
+    }
+
+    void drawObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
+    {
+        shader->use();
+
+        //택스쳐
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, *(this->texture)); //텍스쳐 넣기?
+
+        Object::drawObject(camera, lightColor, lightPos, color);
         glDrawArrays(GL_TRIANGLES, 0, 6); //삼각형
     }
     
@@ -309,12 +331,14 @@ public:
         }
     }
 
-    void drawObject(Shader& shader, Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color, float deltaTime)
+    void drawObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color, float deltaTime)
     {
-        ///position += velocity * deltaTime;
+        shader->use();
+        //fs
+        // light properties
+        shader->setVec3("objectColor", color);
 
-        //std::cout << position.y << '\n';
-        Object::drawObject(shader, camera, lightColor, lightPos, color);
+        Object::drawObject(camera, lightColor, lightPos, color);
 
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형
     }
