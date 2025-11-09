@@ -9,6 +9,30 @@
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+#define COR  -0.33f; //반발계수
+#define GRAVITY_ACCELERATION -9.81f
+
+bool isInBoundary(float a, float b, float size_a, float size_b)
+{
+    //a 10 ~ 20, b 5 ~ 10아래 => 충돌 판정에 안 된경우
+    if (
+        a - size_a > b - size_b &&
+        a - size_a > b + size_b
+        )
+    {
+        return false;
+    }
+    else if //a 5 ~ 10 > b 12 ~ 20
+        (
+            a - size_a < b - size_b &&
+            a - size_a < b + size_b
+            )
+    {
+        return false;
+    }
+    return true;
+
+}
 
 class Object
 {
@@ -18,12 +42,18 @@ protected:
 
     glm::vec3 scale;
     glm::vec3 position;
+    glm::vec3 velocity;
+
+    bool isStatic;
 
 public:
     Object()
     {
         scale = glm::vec3(1.0f, 1.0f, 1.0f);
         position = glm::vec3(0.0f, 0.0f, 0.0f);
+        velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+        isStatic = true;
     }
     ~Object()
     {
@@ -35,7 +65,7 @@ public:
     {
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 view = glm::lookAt(camera.Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)));
         shader.setMat4("projection", projection);
         shader.setMat4("view", view);
 
@@ -64,6 +94,53 @@ public:
         return vbo;
     }
 
+    bool isCollisionEnter(Object & object)
+    {
+        // ==이어도 0 ~ 10, 0 ~ 10, 0 ~ 10 즉, 3개가 같아야함 ==> 하나라도 다르면 커트
+        if (!isInBoundary(this->position.x, object.position.x, this->scale.x, object.scale.x))
+        {
+            return false;
+        }
+        if (!isInBoundary(this->position.y, object.position.y, this->scale.y, object.scale.y))
+        {
+            return false;
+        }
+        if (!isInBoundary(this->position.z, object.position.z, this->scale.z, object.scale.z))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    //반발력 추가
+    void addRepulsion(float deltaTime)
+    {
+        if (isStatic)
+        {
+            return;
+        }
+        //임시방편
+        if (velocity.y > 0)
+        {
+            return;
+        }
+        //std::cout << "velocity : " << velocity.y << '\n';
+        //std::cout << "position : " << position.y << '\n';
+        velocity *= COR; //반발계수
+        //std::cout << "after velocity : " << velocity.y << '\n';
+    }
+
+    void applyPhysics(float deltaTime)
+    {
+        if (isStatic)
+        {
+            return;
+        }
+        //a만큼 속력을 추가
+        position += velocity * deltaTime;
+        velocity += glm::vec3(0, GRAVITY_ACCELERATION, 0) * deltaTime;
+
+    }
 };
 
 
@@ -73,6 +150,7 @@ public:
     Ground()
     {
         //position = glm::vec3(0.0f, -0.5f, 0.0f);
+        isStatic = true;
         
         float groundVertices[] = {
             // positions            // normals 
@@ -112,14 +190,13 @@ public:
 
 class Ball : public Object
 {
-    glm::vec3 velocity;
     int nSphereVert;
     int nSphereAttr;
 public:
     Ball()
     {
-        velocity = glm::vec3(0.0f, -0.1f, 0.0f);
-        position = glm::vec3(0.0f, -1.0f, 0.0f);
+        position = glm::vec3(0.0f, 100.0f, 0.0f);
+        isStatic = false;
 
         float* sphereVerts = NULL;
 
@@ -234,8 +311,9 @@ public:
 
     void drawObject(Shader& shader, Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color, float deltaTime)
     {
-        //position += velocity * deltaTime;
-        std::cout << position.y << '\n';
+        ///position += velocity * deltaTime;
+
+        //std::cout << position.y << '\n';
         Object::drawObject(shader, camera, lightColor, lightPos, color);
 
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형

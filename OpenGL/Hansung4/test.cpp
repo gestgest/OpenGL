@@ -5,6 +5,7 @@
 #include <../Hansung4/header/homework3.h>
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -22,7 +23,6 @@ float lastFrame = 0.0f;
 Camera camera(glm::vec3(12.0f, 2.0f, 12.0f));
 glm::vec3 lightPos(1.2f, 5.0f, 12.0f);
 glm::vec3 lightColor(1.0, 1.0, 1.0);;
-
 
 //mouse
 float lastX = SCR_WIDTH / 2.0f;
@@ -67,8 +67,12 @@ int main()
     Shader groundShader("src/vs/j13.human.vs", "src/fs/j13.human.fs");
     //Shader groundShader("src/vs/solarsystem_planet.vs", "src/fs/solarsystem_planet.fs");
 
+    vector<Object*> objects;
     Ground ground;
     Ball ball;
+
+    objects.push_back(&ground);
+    objects.push_back(&ball);
 
     // render loop
     // -----------
@@ -90,15 +94,32 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //배경색
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //glEnable(GL_DEPTH_TEST);를 추가하면 GL_DEPTH_BUFFER_BIT도 넣어라
 
+        //물리판정
+        for (int i = 0; i < objects.size(); i++)
+        {
+            objects[i]->applyPhysics(deltaTime);
+            for (int j = i + 1; j < objects.size(); j++)
+            {
+                //물체가 닿았는지
+                if (objects[i]->isCollisionEnter(*objects[j]))
+                {
+                    //std::cout << deltaTime << '\n';
+                    objects[i]->addRepulsion(deltaTime);
+                    objects[j]->addRepulsion(deltaTime);
+                }
+            }
+        }
+
         ball.drawObject(groundShader, camera, lightColor, lightPos, glm::vec3(1.0f, 1.0f, 1.0f), deltaTime);
         ground.drawObject(groundShader, camera, lightColor, lightPos, glm::vec3(0.1f, 1.0f, 0.0f));
+
+
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
 
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
