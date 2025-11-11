@@ -16,6 +16,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -49,7 +50,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "window", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -58,6 +59,8 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -84,11 +87,8 @@ int main()
     // -----------
     while (!glfwWindowShouldClose(window))
     {
-        glm::vec3 frontCameraVector = player->getPosition() - camera.Position;
-        camera.Position = player->getPosition() + camera.getTrackingPos(); //플레이어 추적
+        //camera.Position = player->getPosition() + camera.getTrackingPos(); //플레이어 추적
 
-        camera.updateCameraVectors(frontCameraVector);
-        
         //std::cout << camera.Position.y << '\n';
 
         float currentFrame = glfwGetTime();
@@ -130,13 +130,13 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        player->move(dir[4], deltaTime);
+        player->move(camera.getFrontCharacter(), deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        player->move(dir[5], deltaTime);
+        player->move(-camera.getFrontCharacter(), deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        player->move(dir[0], deltaTime);
+        player->move(-camera.getRightCharacter(), deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        player->move(dir[1], deltaTime);
+        player->move(camera.getRightCharacter(), deltaTime);
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         player->move(dir[2], deltaTime);
@@ -169,7 +169,14 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    //camera.ProcessMouseMovement(xoffset, yoffset);
+    camera.ProcessMouseMovement(xoffset, yoffset, player->getPosition());
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(yoffset);
 }
 
 

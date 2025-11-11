@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 enum Camera_Movement {
     FORWARD,
@@ -44,7 +45,6 @@ public:
     // euler Angles
     float Yaw; //좌우
     float Pitch; //높이
-    
     
     // camera options
     float MovementSpeed;
@@ -97,7 +97,7 @@ public:
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
+    void ProcessMouseMovement(float xoffset, float yoffset, glm::vec3 position, GLboolean constrainPitch = true)
     {
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
@@ -113,6 +113,9 @@ public:
             if (Pitch < -89.0f)
                 Pitch = -89.0f;
         }
+
+        glm::vec3 frontCameraVector = position - Position;
+        updateCameraVectors(frontCameraVector);
 
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraRotateVectors();
@@ -131,7 +134,10 @@ public:
     //앞만 보고 오른쪽 위 계산
     void updateCameraVectors(glm::vec3 front)
     {
+        //debugVec3(front);
+
         Front = glm::normalize(front);
+        //debugVec3(front);
 
         // also re-calculate the Right and Up vector
         Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
@@ -141,6 +147,14 @@ public:
     {
         return trackingPos;
     }
+    glm::vec3 getFrontCharacter()
+    {
+        return glm::vec3 (sin(glm::radians(Yaw)),0.0f,cos(glm::radians(Yaw)));
+    }
+    glm::vec3  getRightCharacter()
+    {
+        return glm::vec3(cos(glm::radians(Yaw)), 0.0f, sin(glm::radians(Yaw)));
+    }
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles
@@ -148,11 +162,20 @@ private:
     {
         // calculate the new Front vector
         glm::vec3 front;
-        front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        front.y = sin(glm::radians(Pitch));
-        front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+        front.x = Zoom * cos(glm::radians(Yaw)) * -cos(glm::radians(Pitch));
+        front.y = Zoom * -sin(glm::radians(Pitch));
+        front.z = Zoom * sin(glm::radians(Yaw)) * -cos(glm::radians(Pitch));
+
+        trackingPos.x = Zoom * cos(glm::radians(Yaw)) * -cos(glm::radians(Pitch));
+        trackingPos.y = Zoom * -sin(glm::radians(Pitch));
+        trackingPos.z = Zoom * sin(glm::radians(Yaw)) * -cos(glm::radians(Pitch));
 
         updateCameraVectors(front);
+    }
+
+    void debugVec3(glm::vec3 pos)
+    {
+        std::cout << pos.x << ' ' << pos.y << ' ' << pos.z << '\n';
     }
 };
 
