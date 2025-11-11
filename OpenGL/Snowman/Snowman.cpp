@@ -1,25 +1,38 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <../Snowman/header/camera.h>
+#include <../Snowman/header/shader.h>
+
+
+#include <../Snowman/header/gameobject/GameObject.h>
+#include <../Snowman/header/gameobject/Snowman.h>
+#include <../Snowman/header/gameobject/Ground.h>
 #include <iostream>
+
+#define STB_IMAGE_IMPLEMENTATION
+//std_image.h를 이용해서 이미지 열려면 위에 이거 정의해야함
+#include <std_image.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
-// settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
-
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-Camera camera(glm::vec3(10.0f, 20.0f, 10.0f));
+Camera camera(glm::vec3(10.0f, 10.0f, 10.0f));
+glm::vec3 lightPos(2.0f, 5.0f, 2.0f);
+glm::vec3 lightColor(1.0, 1.0, 1.0);
+
+glm::vec3 dir[6] = { glm::vec3(-1.0f,0.0f,1.0f), glm::vec3(1.0f,0,-1.0f), glm::vec3(0,1.0f,0.0f), glm::vec3(0,-1.0f,0.0f), glm::vec3(-1.0f,0.0f,-1.0f), glm::vec3(1.0f,0,1.0f) };
 
 //mouse
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+
+GameObject * player;
+void loadTexture(unsigned int& texture, std::string path);
 
 int main()
 {
@@ -54,10 +67,29 @@ int main()
         return -1;
     }
 
+    glEnable(GL_DEPTH_TEST);
+    Shader snowmanShader("src/vs/snowman.vs", "src/fs/snowman.fs");
+    Shader groundShader("src/vs/ground.vs", "src/fs/ground.fs");
+    unsigned int ground_texture;
+
+    Snowman snowman(snowmanShader);
+    Ground ground(groundShader);
+
+    loadTexture(ground_texture, "../Snowman/textures/snow.png");
+    ground.setTexture(ground_texture);
+    
+    player = &snowman;
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        glm::vec3 frontCameraVector = player->getPosition() - camera.Position;
+        camera.Position = player->getPosition() + camera.getTrackingPos(); //플레이어 추적
+
+        camera.updateCameraVectors(frontCameraVector);
+        
+        //std::cout << camera.Position.y << '\n';
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -69,8 +101,11 @@ int main()
 
         // render
         // ------
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //배경색
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.3f, 0.3f, 0.7f, 1.0f); //배경색
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //glEnable(GL_DEPTH_TEST);를 추가하면 GL_DEPTH_BUFFER_BIT도 넣어라
+
+        ground.drawGameObject(camera, lightColor, lightPos, glm::vec3(0.5f, 0.5f, 0.5f));
+        snowman.drawGameObject(camera, lightColor, lightPos, glm::vec3(0.5f, 0.5f, 0.5f));
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -95,13 +130,17 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        player->move(dir[4], deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        player->move(dir[5], deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        player->move(dir[0], deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        player->move(dir[1], deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        player->move(dir[2], deltaTime);
+
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -131,4 +170,36 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastY = ypos;
 
     //camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+
+//텍스쳐값 로드
+void loadTexture(unsigned int& texture, std::string path)
+{
+    int width, height, nrChannels;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // load image, create texture and generate mipmaps
+    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
 }

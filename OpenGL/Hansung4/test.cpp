@@ -82,7 +82,6 @@ int main()
     objects.push_back(&ball);
 
     loadTexture(ground_texture, "../Hansung4/textures/plane/Wood_Panels_basecolor.png");
-    //loadTexture(ground_texture, "../Hansung4/textures/solarsystem/2k_moon.jpg");
     ground.setTexture(ground_texture);
     ground.setShader(groundShader);
     ball.setShader(ballShader);
