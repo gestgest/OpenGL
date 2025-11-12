@@ -1,0 +1,73 @@
+#ifndef SNOWBULLET
+#define SNOWBULLET
+#include <../Snowman/header/GameObject/GameObject.h>
+
+class SnowBullet : public GameObject{
+    bool isGround = false;
+
+    //높이는 4
+
+    int nSphereVert;
+    int nSphereAttr;
+public:
+    SnowBullet()
+    {
+        initSnowBullet();
+    }
+    SnowBullet(Shader & shader) : GameObject(shader)
+    {
+        initSnowBullet();
+    }
+    void initSnowBullet()
+    {
+        position = glm::vec3(0.0f, 0.0f, 0.0f);
+        movement_speed = 10.0f;
+        isStatic = false;
+
+        float* sphereVerts = NULL;
+
+        init_sphere(&sphereVerts);
+        glGenVertexArrays(1, &vao);
+        glGenBuffers(1, &vbo);
+
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, nSphereVert * nSphereAttr * sizeof(float), sphereVerts, GL_STATIC_DRAW); //static draw를 하는게 맞나?
+
+        // 1. 위치(Position) 속성 (layout (location = 0))
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        // 2. 법선(Normal) 속성 (layout (location = 1))
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        free(sphereVerts);
+    }
+
+
+    void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
+    {
+        float pi = acosf(-1.0f);
+        shader->use();
+        //fs
+        // light properties
+        shader->setVec3("objectColor", color);
+
+        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 0.0f, 0.0f));
+        glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형 형태로 그려라
+
+    }
+
+    void SetIsGround(bool isGround)
+    {
+        this->isGround = isGround;
+    }
+    bool GetIsGround()
+    {
+        return isGround;
+    }
+};
+
+#endif
+#pragma once

@@ -7,7 +7,9 @@
 #include <../Snowman/header/gameobject/GameObject.h>
 #include <../Snowman/header/gameobject/Snowman.h>
 #include <../Snowman/header/gameobject/Ground.h>
+#include <../Snowman/header/gameobject/SnowBullet.h>
 #include <iostream>
+#include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 //std_image.h를 이용해서 이미지 열려면 위에 이거 정의해야함
@@ -32,7 +34,11 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
-GameObject * player;
+std::vector<GameObject*> objects;
+Snowman * player;
+Shader* snowShader;
+
+
 void loadTexture(unsigned int& texture, std::string path);
 
 int main()
@@ -73,10 +79,17 @@ int main()
     glEnable(GL_DEPTH_TEST);
     Shader snowmanShader("src/vs/snowman.vs", "src/fs/snowman.fs");
     Shader groundShader("src/vs/ground.vs", "src/fs/ground.fs");
+    snowShader = &snowmanShader;
+
     unsigned int ground_texture;
+
+    std::vector<GameObject*> objects;
 
     Snowman snowman(snowmanShader);
     Ground ground(groundShader);
+
+    objects.push_back(&snowman);
+    objects.push_back(&ground);
 
     loadTexture(ground_texture, "../Snowman/textures/snow.png");
     ground.setTexture(ground_texture);
@@ -99,13 +112,40 @@ int main()
         // -----
         processInput(window);
 
+        //물리 추가
+        snowman.applyPhysics(deltaTime);
+        camera.move(player->getPosition());
+
+        //물리판정
+        for (int i = 0; i < objects.size(); i++)
+        {
+            objects[i]->applyPhysics(deltaTime);
+            for (int j = i + 1; j < objects.size(); j++)
+            {
+                //물체가 닿았는지
+                if (objects[i]->isCollisionEnter(*objects[j]))
+                {
+                    //std::cout << deltaTime << '\n';
+                    objects[i]->addRepulsion(deltaTime);
+                    objects[j]->addRepulsion(deltaTime);
+
+                    //땅에 닿았는지
+                    if(objects[i] == player || objects[j] == player)
+                        player->SetIsGround(true);
+                }
+            }
+        }
+
         // render
         // ------
         glClearColor(0.3f, 0.3f, 0.7f, 1.0f); //배경색
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //glEnable(GL_DEPTH_TEST);를 추가하면 GL_DEPTH_BUFFER_BIT도 넣어라
 
-        ground.drawGameObject(camera, lightColor, lightPos, glm::vec3(0.5f, 0.5f, 0.5f));
-        snowman.drawGameObject(camera, lightColor, lightPos, glm::vec3(0.5f, 0.5f, 0.5f));
+        //그리기
+        for (int i = 0; i < objects.size(); i++)
+        {
+            objects[i]->drawGameObject(camera, lightColor, lightPos, glm::vec3(0.5f, 0.5f, 0.5f));
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -130,16 +170,41 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        player->move(camera.getFrontCharacter(), deltaTime);
+    {
+        player->playerMove(camera.getFrontPlayer(), deltaTime);
+        camera.move(player->getPosition());
+    }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        player->move(-camera.getFrontCharacter(), deltaTime);
+    {
+        player->playerMove(-camera.getFrontPlayer(), deltaTime);
+        camera.move(player->getPosition());
+    }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        player->move(-camera.getRightCharacter(), deltaTime);
+    {
+        player->playerMove(-camera.getRightPlayer(), deltaTime);
+        camera.move(player->getPosition());
+    }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        player->move(camera.getRightCharacter(), deltaTime);
+    {
+        player->playerMove(camera.getRightPlayer(), deltaTime);
+        camera.move(player->getPosition());
+    }
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+    {
+        std::cout << "fasfa" <<'\n';
+        SnowBullet snowbullet(*snowShader);
+        objects.push_back(&snowbullet);
+
+    }
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        player->move(dir[2], deltaTime);
+    {
+        if (player->GetIsGround())
+        {
+            player->setVelocity(glm::vec3(0, 15.0f, 0));
+            player->SetIsGround(false);
+        }
+    }
 
 }
 

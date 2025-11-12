@@ -16,14 +16,14 @@
     <Filter Include="소스 파일\Library">
       <UniqueIdentifier>{60ea23d4-9f42-4f68-a24e-05bb8c415065}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일\gameObject">
-      <UniqueIdentifier>{b7420350-ec44-4be1-bb9b-4e6df7b95a24}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\vs">
       <UniqueIdentifier>{1d120aba-f16e-4654-9c93-64eda49bab58}</UniqueIdentifier>
     </Filter>
     <Filter Include="소스 파일\fs">
       <UniqueIdentifier>{8abb9ea6-625d-444d-8806-bc0d94eaf097}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\GameObject">
+      <UniqueIdentifier>{b7420350-ec44-4be1-bb9b-4e6df7b95a24}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,13 +45,16 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="header\gameobject\GameObject.h">
-      <Filter>헤더 파일\gameObject</Filter>
+      <Filter>헤더 파일\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="header\gameobject\Snowman.h">
-      <Filter>헤더 파일\gameObject</Filter>
+      <Filter>헤더 파일\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="header\GameObject\Ground.h">
-      <Filter>헤더 파일\gameObject</Filter>
+      <Filter>헤더 파일\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="header\GameObject\SnowBullet.h">
+      <Filter>헤더 파일\GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

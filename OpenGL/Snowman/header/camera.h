@@ -58,7 +58,7 @@ public:
         WorldUp = up;
         Yaw = yaw;
         Pitch = pitch;
-        updateCameraRotateVectors();
+        updateCameraPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     }
 
 
@@ -69,35 +69,26 @@ public:
         WorldUp = glm::vec3(upX, upY, upZ);
         Yaw = yaw;
         Pitch = pitch;
-        updateCameraRotateVectors();
+        updateCameraPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     }
 
     // default : z = -1
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix()
     {
+        //debugMat4(glm::lookAt(Position, Position + Front, Up));
         return glm::lookAt(Position, Position + Front, Up);
     }
 
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime)
+    void move(glm::vec3 player_pos)
     {
-        float velocity = MovementSpeed * deltaTime;
-        if (direction == FORWARD)
-            Position += Front * velocity;
-        if (direction == BACKWARD)
-            Position -= Front * velocity;
-        if (direction == LEFT)
-            Position -= Right * velocity;
-        if (direction == RIGHT)
-            Position += Right * velocity;
-        if (direction == UP)
-            Position += Up * velocity;
-        if (direction == DOWN)
-            Position -= Up * velocity;
+        //float velocity = MovementSpeed * deltaTime;
+        updateCameraPosition(player_pos);
+        //Front *= -1;
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(float xoffset, float yoffset, glm::vec3 position, GLboolean constrainPitch = true)
+    void ProcessMouseMovement(float xoffset, float yoffset, glm::vec3 player_pos, GLboolean constrainPitch = true)
     {
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
@@ -114,11 +105,8 @@ public:
                 Pitch = -89.0f;
         }
 
-        glm::vec3 frontCameraVector = position - Position;
-        updateCameraVectors(frontCameraVector);
-
-        // update Front, Right and Up Vectors using the updated Euler angles
-        updateCameraRotateVectors();
+        //앞 벡터
+        updateCameraPosition(player_pos);
     }
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
@@ -134,48 +122,53 @@ public:
     //앞만 보고 오른쪽 위 계산
     void updateCameraVectors(glm::vec3 front)
     {
-        //debugVec3(front);
-
         Front = glm::normalize(front);
-        //debugVec3(front);
 
-        // also re-calculate the Right and Up vector
-        Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+        Right = glm::normalize(glm::cross(Front, WorldUp)); 
         Up = glm::normalize(glm::cross(Right, Front));
     }
     glm::vec3 getTrackingPos()
     {
         return trackingPos;
     }
-    glm::vec3 getFrontCharacter()
+    glm::vec3 getFrontPlayer()
     {
-        return glm::vec3 (sin(glm::radians(Yaw)),0.0f,cos(glm::radians(Yaw)));
+        return glm::vec3(Front.x,0, Front.z);
     }
-    glm::vec3  getRightCharacter()
+    glm::vec3  getRightPlayer()
     {
-        return glm::vec3(cos(glm::radians(Yaw)), 0.0f, sin(glm::radians(Yaw)));
+        return glm::vec3(Right.x, 0, Right.z);
     }
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles
-    void updateCameraRotateVectors()
+    void updateCameraPosition(glm::vec3 player_pos)
     {
-        // calculate the new Front vector
-        glm::vec3 front;
-        front.x = Zoom * cos(glm::radians(Yaw)) * -cos(glm::radians(Pitch));
-        front.y = Zoom * -sin(glm::radians(Pitch));
-        front.z = Zoom * sin(glm::radians(Yaw)) * -cos(glm::radians(Pitch));
-
         trackingPos.x = Zoom * cos(glm::radians(Yaw)) * -cos(glm::radians(Pitch));
         trackingPos.y = Zoom * -sin(glm::radians(Pitch));
         trackingPos.z = Zoom * sin(glm::radians(Yaw)) * -cos(glm::radians(Pitch));
 
-        updateCameraVectors(front);
+        Position = player_pos + trackingPos;
+
+        glm::vec3 frontCameraVector = player_pos - Position;
+        updateCameraVectors(frontCameraVector);
     }
 
     void debugVec3(glm::vec3 pos)
     {
         std::cout << pos.x << ' ' << pos.y << ' ' << pos.z << '\n';
+    }
+
+    void debugMat4(glm::mat4 m)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                std::cout << m[i][j] << ' ';
+            }
+            std::cout << '\n';
+        }
     }
 };
 

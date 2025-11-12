@@ -3,10 +3,10 @@
 #include <../Snowman/header/GameObject/GameObject.h>
 
 class Snowman : public GameObject{
-    //높이는 2
+    bool isGround = false;
 
-    int nSphereVert;
-    int nSphereAttr;
+    //높이는 4
+
 public:
     Snowman()
     {
@@ -18,7 +18,7 @@ public:
     }
     void initSnowman()
     {
-        position = glm::vec3(0.0f, 0.0f, 0.0f);
+        position = glm::vec3(0.0f, 20.0f, 0.0f);
         movement_speed = 10.0f;
         isStatic = false;
 
@@ -140,13 +140,20 @@ public:
         // light properties
         shader->setVec3("objectColor", color);
 
-        GameObject::drawGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 0.0f, 0.0f));
+        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 0.0f, 0.0f));
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형 형태로 그려라
 
-        GameObject::drawGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 2.0f, 0.0f));
+        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 2.0f, 0.0f));
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형 형태로 그려라
+    }
 
-
+    void SetIsGround(bool isGround)
+    {
+        this->isGround = isGround;
+    }
+    bool GetIsGround()
+    {
+        return isGround;
     }
 };
 

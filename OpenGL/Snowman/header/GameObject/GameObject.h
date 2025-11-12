@@ -53,6 +53,9 @@ protected:
     unsigned int vbo;
     Shader* shader;
 
+    int nSphereVert;
+    int nSphereAttr;
+
     glm::vec3 scale;
     glm::vec3 position;
     glm::vec3 velocity;
@@ -60,6 +63,101 @@ protected:
     float movement_speed;
 
     bool isStatic;
+
+    void move(glm::vec3 velocity, float deltaTime)
+    {
+        position += velocity * deltaTime;
+    }
+
+
+    // position, normal, tex_coords.
+    // 매개변수 방정식으로 원 그리는 함수 => 
+    void init_sphere(float** vertices) //높이는 3.14
+    {
+        //nAttr : 8
+        // sphere: set up vertex data and configure vertex attributes
+        float pi = acosf(-1.0f);	// pi = 3.14152...
+        float pi2 = 2.0f * pi;
+        int nu = 40, nv = 20;
+        const double du = pi2 / nu;
+        const double dv = pi / nv;
+
+        //19 * 40 * 6
+        nSphereVert = (nv - 1) * nu * 6;		// two triangles
+        nSphereAttr = 6;
+        *vertices = (float*)malloc(sizeof(float) * (nSphereVert) * (nSphereAttr));
+
+        float u, v;
+        int k = 0;
+
+        v = 0.0f;
+        u = 0.0f;
+        for (v = (-0.5f) * pi + dv; v < 0.5f * pi - dv; v += dv)
+        {
+            for (u = 0.0f; u < pi2; u += du)
+            {
+                // p(u,v)
+                (*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 	// position (x,y,z)
+                (*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal (x,y z)
+                // 이렇게 해서 8개의 속성 => nAttr
+
+
+                // p(u+du,v)
+                (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	// position
+                (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
+
+                // p(u,v+dv)
+                (*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// position
+                (*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
+
+                // p(u+du,v)
+                (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	// position
+                (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
+
+                // p(u+du,v+dv)
+                (*vertices)[k++] = cosf(v + dv) * cosf(u + du);	(*vertices)[k++] = cosf(v + dv) * sinf(u + du);	(*vertices)[k++] = sinf(v + dv); 	// position
+                (*vertices)[k++] = cosf(v + dv) * cosf(u + du);	(*vertices)[k++] = cosf(v + dv) * sinf(u + du);	(*vertices)[k++] = sinf(v + dv);	// normal
+
+                // p(u,v+dv)
+                (*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// position
+                (*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
+            }
+        }
+        // triangles around north pole and south pole
+        for (u = 0.0f; u < pi2; u += du)
+        {
+            // triangles around north pole
+            // p(u,pi/2-dv)
+            v = 0.5f * pi - dv;
+            (*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 	// position
+            (*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal
+
+            // p(u+du,pi/2-dv)
+            v = 0.5f * pi - dv;
+            (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v); 	// position
+            (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);		// normal
+
+            // p(u,pi/2) = (0, 1. 0)  ~ north pole
+            v = 0.5f * pi;
+            (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	 // position
+            (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		 // normal
+
+            // triangles around south pole
+            // p(u,-pi/2) = (0, -1, 0)  ~ south pole
+            v = (-0.5f) * pi;
+            (*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 		// position
+            (*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);			// normal
+
+            // p(u+du,-pi/2+dv)
+            v = (-0.5f) * pi + dv;
+            (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);	// position
+            (*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);	// normal
+
+            // p(u,-pi/2+dv)
+            (*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u); (*vertices)[k++] = sinf(v);	// position
+            (*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u); (*vertices)[k++] = sinf(v);	// normal
+        }
+    }
 
 public:
     GameObject()
@@ -84,8 +182,11 @@ public:
     {
         this->shader = &shader;
     }
+    virtual void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
+    {
 
-    void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color, glm::vec3 addPos)
+    }
+    void drawMiniGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color, glm::vec3 addPos)
     {
         //fs 셰이더 속성은 drawObject위에
 
@@ -112,11 +213,13 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, 6); //삼각형
     }
 
-    void move(glm::vec3 vec, float deltaTime)
+    void playerMove(glm::vec3 vec, float deltaTime)
     {
         vec = glm::normalize(vec);
         float velocity = movement_speed * deltaTime;
-            position += vec * velocity;
+
+        move(vec, velocity);
+        
     }
 
     unsigned int& getVAO()
@@ -168,8 +271,14 @@ public:
             return;
         }
         //a만큼 속력을 추가
-        position += velocity * deltaTime;
+        
+        move(velocity, deltaTime);
         velocity += glm::vec3(0, GRAVITY_ACCELERATION, 0) * deltaTime;
+    }
+
+    void setVelocity(glm::vec3 velocity)
+    {
+        this->velocity = velocity;
     }
 };
 

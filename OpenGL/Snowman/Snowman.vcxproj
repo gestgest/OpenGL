@@ -136,6 +136,7 @@
     <ClInclude Include="header\camera.h" />
     <ClInclude Include="header\gameobject\GameObject.h" />
     <ClInclude Include="header\GameObject\Ground.h" />
+    <ClInclude Include="header\GameObject\SnowBullet.h" />
     <ClInclude Include="header\gameobject\Snowman.h" />
     <ClInclude Include="header\shader.h" />
   </ItemGroup>
