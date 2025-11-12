@@ -83,18 +83,18 @@ int main()
 
     unsigned int ground_texture;
 
-    std::vector<GameObject*> objects;
+    //std::vector<GameObject*> objects;
 
-    Snowman snowman(snowmanShader);
-    Ground ground(groundShader);
+    Snowman* snowman = new Snowman(snowmanShader, glm::vec3(0.5f, 0.5f, 0.5f));
+    Ground* ground = new Ground(groundShader, glm::vec3(1.0f, 1.0f, 1.0f));
 
-    objects.push_back(&snowman);
-    objects.push_back(&ground);
+    objects.push_back(snowman);
+    objects.push_back(ground);
 
     loadTexture(ground_texture, "../Snowman/textures/snow.png");
-    ground.setTexture(ground_texture);
+    ground->setTexture(ground_texture);
     
-    player = &snowman;
+    player = snowman;
 
     // render loop
     // -----------
@@ -113,7 +113,7 @@ int main()
         processInput(window);
 
         //물리 추가
-        snowman.applyPhysics(deltaTime);
+        snowman->applyPhysics(deltaTime);
         camera.move(player->getPosition());
 
         //물리판정
@@ -141,10 +141,11 @@ int main()
         glClearColor(0.3f, 0.3f, 0.7f, 1.0f); //배경색
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //glEnable(GL_DEPTH_TEST);를 추가하면 GL_DEPTH_BUFFER_BIT도 넣어라
 
+
         //그리기
         for (int i = 0; i < objects.size(); i++)
         {
-            objects[i]->drawGameObject(camera, lightColor, lightPos, glm::vec3(0.5f, 0.5f, 0.5f));
+            objects[i]->drawGameObject(camera, lightColor, lightPos);
         }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -153,9 +154,14 @@ int main()
         glfwPollEvents();
     }
 
-    //glDeleteVertexArrays(1, &groundVAO);
-    //glDeleteBuffers(1, &groundVBO);
+    //메모리 제거
+    for (int i = 0; i < objects.size(); i++)
+    {
+        free(objects[i]);
+    }
 
+    
+    
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -191,10 +197,12 @@ void processInput(GLFWwindow* window)
     }
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
     {
-        std::cout << "fasfa" <<'\n';
-        SnowBullet snowbullet(*snowShader);
-        objects.push_back(&snowbullet);
-
+        if (objects.size() == 2)
+        {
+            std::cout << "create" << '\n';
+            SnowBullet * snowbullet = new SnowBullet(*snowShader, glm::vec3(0.5f, 0.5f, 0.5f));
+            objects.push_back(snowbullet);
+        }
     }
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)

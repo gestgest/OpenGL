@@ -4,25 +4,21 @@
 
 class SnowBullet : public GameObject{
     bool isGround = false;
-
-    //높이는 4
-
-    int nSphereVert;
-    int nSphereAttr;
 public:
     SnowBullet()
     {
         initSnowBullet();
     }
-    SnowBullet(Shader & shader) : GameObject(shader)
+    SnowBullet(Shader & shader, glm::vec3 color) : GameObject(shader, color)
     {
         initSnowBullet();
     }
     void initSnowBullet()
     {
-        position = glm::vec3(0.0f, 0.0f, 0.0f);
+        scale = glm::vec3(1.0f, 1.0f, 1.0f);
+        position = glm::vec3(0.0f, 10.0f, 0.0f);
         movement_speed = 10.0f;
-        isStatic = false;
+        isStatic = true;
 
         float* sphereVerts = NULL;
 
@@ -45,14 +41,15 @@ public:
         free(sphereVerts);
     }
 
-
-    void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
+    void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos)
     {
         float pi = acosf(-1.0f);
         shader->use();
         //fs
         // light properties
         shader->setVec3("objectColor", color);
+
+        //scale = glm::vec3(50.0f, 50.0f, 50.0f);
 
         GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 0.0f, 0.0f));
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형 형태로 그려라

@@ -11,19 +11,19 @@ public:
     {
         initObject();
     }
-    Ground(Shader& shader) : GameObject(shader)
+    Ground(Shader& shader, glm::vec3 color) : GameObject(shader, color)
     {
         initObject();
     }
     void initObject() 
     {
 
-        //position = glm::vec3(0.0f, -0.5f, 0.0f);
-        scale = glm::vec3(24.0f, -1.0f, 24.0f);
+        position = glm::vec3(0.0f, -0.5f, 0.0f);
+        scale = glm::vec3(24.0f, 1.0f, 24.0f);
         isStatic = true;
 
         float groundVertices[] = {
-            // positions            // normals          //textures
+            // positions                 // normals         // textures
              scale.x, -1.0f,  scale.z,   0.0f, 1.0f, 0.0f,  scale.x, scale.z,
             -scale.x, -1.0f,  scale.z,   0.0f, 1.0f, 0.0f,  0.0f, scale.z,
             -scale.x, -1.0f, -scale.z,   0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
@@ -59,7 +59,7 @@ public:
         this->texture = &texture;
     }
 
-    void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
+    void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos)
     {
         shader->use();
 

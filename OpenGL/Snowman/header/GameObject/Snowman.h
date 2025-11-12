@@ -12,13 +12,15 @@ public:
     {
         initSnowman();
     }
-    Snowman(Shader & shader) : GameObject(shader)
+    Snowman(Shader & shader, glm::vec3 color) : GameObject(shader, color)
     {
         initSnowman();
     }
     void initSnowman()
     {
-        position = glm::vec3(0.0f, 20.0f, 0.0f);
+        position = glm::vec3(0.0f, 10.0f, 0.0f);
+        scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
         movement_speed = 10.0f;
         isStatic = false;
 
@@ -132,7 +134,7 @@ public:
         }
     }
 
-    void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
+    void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos)
     {
         float pi = acosf(-1.0f);
         shader->use();

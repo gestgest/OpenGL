@@ -59,6 +59,7 @@ protected:
     glm::vec3 scale;
     glm::vec3 position;
     glm::vec3 velocity;
+    glm::vec3 color;
 
     float movement_speed;
 
@@ -169,9 +170,10 @@ public:
 
         isStatic = true;
     }
-    GameObject(Shader& shader)
+    GameObject(Shader& shader, glm::vec3 color)
     {
         setShader(shader);
+        this->color = color;
     }
     ~GameObject()
     {
@@ -182,10 +184,8 @@ public:
     {
         this->shader = &shader;
     }
-    virtual void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color)
-    {
-
-    }
+    //가상 함수
+    virtual void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos) = 0;
     void drawMiniGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color, glm::vec3 addPos)
     {
         //fs 셰이더 속성은 drawObject위에
@@ -207,6 +207,7 @@ public:
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, position + addPos);
+        //model = glm::scale(model, scale);
         shader->setMat4("model", model);
 
         glBindVertexArray(vao);
