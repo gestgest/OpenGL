@@ -65,7 +65,6 @@ public:
     //override
     void addRepulsion(float deltaTime)
     {
-        std::cout << " qwrqw" << '\n';
         this->isActive = false;
     }
 };

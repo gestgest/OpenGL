@@ -18,20 +18,20 @@ public:
     void initObject() 
     {
         position = glm::vec3(0.0f, -0.5f, 0.0f);
-        scale = glm::vec3(24.0f, 0.0f, 24.0f);
+        scale = glm::vec3(24.0f, 1.0f, 24.0f);
         isStatic = true;
         isActive = true;
 
 
         float groundVertices[] = {
             // positions                 // normals         // textures
-             scale.x, -1.0f,  scale.z,   0.0f, 1.0f, 0.0f,  scale.x, scale.z,
-            -scale.x, -1.0f,  scale.z,   0.0f, 1.0f, 0.0f,  0.0f, scale.z,
+             scale.x, -1.0f,  scale.z,   0.0f, 1.0f, 0.0f,  scale.x / 2, scale.z / 2,
+            -scale.x, -1.0f,  scale.z,   0.0f, 1.0f, 0.0f,  0.0f, scale.z / 2,
             -scale.x, -1.0f, -scale.z,   0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
 
-             scale.x, -1.0f,  scale.z,   0.0f, 1.0f, 0.0f,  scale.x, scale.z,
+             scale.x, -1.0f,  scale.z,   0.0f, 1.0f, 0.0f,  scale.x / 2, scale.z / 2,
             -scale.x, -1.0f, -scale.z,   0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
-             scale.x, -1.0f, -scale.z,   0.0f, 1.0f, 0.0f,  scale.x, 0.0f
+             scale.x, -1.0f, -scale.z,   0.0f, 1.0f, 0.0f,  scale.x / 2, 0.0f
         };
 
         glGenVertexArrays(1, &vao);
@@ -68,7 +68,7 @@ public:
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, *(this->texture)); //텍스쳐 넣기?
 
-        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0.0f, 0.0f, 0.0f));
+        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0.0f, 0.5f, 0.0f));
         glDrawArrays(GL_TRIANGLES, 0, 6); //삼각형
     }
 };

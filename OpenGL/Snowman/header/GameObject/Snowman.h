@@ -146,15 +146,17 @@ public:
         // light properties
         shader->setVec3("objectColor", color);
 
+        //원 그릴때 포지션은 밑바닥기준
         GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, -0.5f, 0.0f));
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형 형태로 그려라
 
-        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 1.5f, 0.0f));
+        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 1.0f, 0.0f), glm::vec3(0.75f, 0.75f,0.75f));
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형 형태로 그려라
     }
 
     void SetIsGround(bool isGround)
     {
+        //std::cout << "Cd" << '\n';
         this->isGround = isGround;
     }
     bool GetIsGround()

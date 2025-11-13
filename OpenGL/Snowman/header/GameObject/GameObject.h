@@ -193,7 +193,9 @@ public:
     }
     //가상 함수
     virtual void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos) = 0;
-    void drawMiniGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color, glm::vec3 addPos)
+    void drawMiniGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 color, glm::vec3 addPos, 
+        glm::vec3 mini_scale = glm::vec3(1,1,1)
+    )
     {
         //fs 셰이더 속성은 drawObject위에
 
@@ -214,7 +216,7 @@ public:
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, position + addPos);
-        //model = glm::scale(model, scale);
+        model = glm::scale(model, mini_scale);
         shader->setMat4("model", model);
 
         glBindVertexArray(vao);
