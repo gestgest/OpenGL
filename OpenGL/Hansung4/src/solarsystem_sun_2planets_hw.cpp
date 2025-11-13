@@ -1,9 +1,4 @@
 /*
-//////////////////////////////////////////
-//		jieunlee@hansung.ac.kr			//
-//		Solar system (Earth)			//
-//		2023. 5. 11						//
-//////////////////////////////////////////
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <string>
@@ -617,4 +612,3 @@ void init_textures()
 	loadPlants(texture_neptune, "../Hansung4/textures/solarsystem/2k_neptune.jpg", width, height, nrChannels);
 }
 */
-

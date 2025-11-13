@@ -100,5 +100,11 @@
     <None Include="src\fs\ground.fs">
       <Filter>소스 파일\fs</Filter>
     </None>
+    <None Include="src\fs\normal_mapping.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\vs\normal_mapping.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
   </ItemGroup>
 </Project>
