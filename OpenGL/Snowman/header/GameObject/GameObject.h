@@ -25,26 +25,30 @@ void debugMat(glm::mat4 m)
     
 }
 
-bool isInBoundary(float a, float b, float size_a, float size_b)
+bool isInBoundary(float a, float b, float a_size, float b_size)
 {
-    //a 10 ~ 20, b 5 ~ 10아래 => 충돌 판정에 안 된경우
-    if (
-        a - size_a > b - size_b &&
-        a - size_a > b + size_b
+    float a_1 = a - a_size / 2;
+    float a_2 = a + a_size / 2;
+    float b_1 = b - b_size / 2;
+    float b_2 = b + b_size / 2;
+
+    if 
+       (
+        (a_1 <= b_1 && b_1 <= a_2) ||
+        (a_1 <= b_2 && b_2 <= a_2)
+       )
+    {
+        return true;
+    }
+    else if
+        (
+            (b_1 <= a_1 && a_1 <= b_2) ||
+            (b_1 <= a_2 && a_2 <= b_2)
         )
     {
-        return false;
+        return true;
     }
-    else if //a 5 ~ 10 > b 12 ~ 20
-        (
-            a - size_a < b - size_b &&
-            a - size_a < b + size_b
-            )
-    {
-        return false;
-    }
-    return true;
-
+    return false;
 }
 
 class GameObject {
@@ -56,7 +60,7 @@ protected:
     int nSphereVert;
     int nSphereAttr;
 
-    glm::vec3 scale;
+    glm::vec3 scale; //물리 scale
     glm::vec3 position;
     glm::vec3 velocity;
     glm::vec3 color;
@@ -64,6 +68,8 @@ protected:
     float movement_speed;
 
     bool isStatic;
+    bool isActive = true;
+
 
     void move(glm::vec3 velocity, float deltaTime)
     {
@@ -167,6 +173,7 @@ public:
         position = glm::vec3(0.0f, 0.0f, 0.0f);
         velocity = glm::vec3(0.0f, 0.0f, 0.0f);
         movement_speed = 0.0f;
+        isActive = true;
 
         isStatic = true;
     }
@@ -237,21 +244,40 @@ public:
     }
 
 
-    bool isCollisionEnter(GameObject& object)
+    bool isCollisionEnter(GameObject* object)
     {
+        if (!(this->getIsActive()) || !(object->getIsActive()))
+        {
+            return false;
+        }
+
+        /*
+        if (object->position.y < 2.0f)
+        {
+            std::cout << "bullet_y : " << object->position.y << '\n';
+            std::cout << "ground_y : " << this->position.y << '\n';
+            std::cout << "bullet_scale : " << object->scale.y << '\n';
+            std::cout << "ground_scale: " << this->scale.y << '\n';
+        }
+        */
+
         // ==이어도 0 ~ 10, 0 ~ 10, 0 ~ 10 즉, 3개가 같아야함 ==> 하나라도 다르면 커트
-        if (!isInBoundary(this->position.x, object.position.x, this->scale.x, object.scale.x))
+        //x비교
+        if (!isInBoundary(this->position.x, object->position.x, this->scale.x, object->scale.x))
         {
             return false;
         }
-        if (!isInBoundary(this->position.y, object.position.y, this->scale.y, object.scale.y))
+
+        if (!isInBoundary(this->position.y, object->position.y, this->scale.y, object->scale.y))
         {
             return false;
         }
-        if (!isInBoundary(this->position.z, object.position.z, this->scale.z, object.scale.z))
+
+        if (!isInBoundary(this->position.z, object->position.z, this->scale.z, object->scale.z))
         {
             return false;
         }
+        //std::cout << object->position.y;
         return true;
     }
 
@@ -262,12 +288,13 @@ public:
         {
             return;
         }
-        velocity *= COR; //반발계수
+        //velocity *= COR; //반발계수
+        velocity *= 0;
     }
 
     void applyPhysics(float deltaTime)
     {
-        if (isStatic)
+        if (isStatic || !isActive)
         {
             return;
         }
@@ -277,9 +304,28 @@ public:
         velocity += glm::vec3(0, GRAVITY_ACCELERATION, 0) * deltaTime;
     }
 
+    glm::vec3 getVelocity()
+    {
+        return velocity;
+    }
+
     void setVelocity(glm::vec3 velocity)
     {
         this->velocity = velocity;
+    }
+
+    bool getIsStatic()
+    {
+        return isStatic;
+    }
+
+    void setIsActive(bool isActive)
+    {
+        this->isActive = isActive;
+    }
+    bool getIsActive()
+    {
+        return isActive;
     }
 };
 

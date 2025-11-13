@@ -56,6 +56,9 @@
     <ClInclude Include="header\GameObject\SnowBullet.h">
       <Filter>헤더 파일\GameObject</Filter>
     </ClInclude>
+    <ClInclude Include="header\Pool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\vs\snowman.vs">

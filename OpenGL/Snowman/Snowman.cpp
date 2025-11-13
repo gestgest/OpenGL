@@ -8,6 +8,7 @@
 #include <../Snowman/header/gameobject/Snowman.h>
 #include <../Snowman/header/gameobject/Ground.h>
 #include <../Snowman/header/gameobject/SnowBullet.h>
+#include <../Snowman/header/Pool.h>
 #include <iostream>
 #include <vector>
 
@@ -37,6 +38,7 @@ bool firstMouse = true;
 std::vector<GameObject*> objects;
 Snowman * player;
 Shader* snowShader;
+Pool* pool;
 
 
 void loadTexture(unsigned int& texture, std::string path);
@@ -88,13 +90,15 @@ int main()
     Snowman* snowman = new Snowman(snowmanShader, glm::vec3(0.5f, 0.5f, 0.5f));
     Ground* ground = new Ground(groundShader, glm::vec3(1.0f, 1.0f, 1.0f));
 
-    objects.push_back(snowman);
     objects.push_back(ground);
+    objects.push_back(snowman);
 
     loadTexture(ground_texture, "../Snowman/textures/snow.png");
     ground->setTexture(ground_texture);
     
     player = snowman;
+    Pool tmpPool(snowShader, objects);
+    pool = &tmpPool;
 
     // render loop
     // -----------
@@ -109,23 +113,30 @@ int main()
         lastFrame = currentFrame;
 
         // input
-        // -----
         processInput(window);
 
         //물리 추가
-        snowman->applyPhysics(deltaTime);
+        //snowman->applyPhysics(deltaTime);
         camera.move(player->getPosition());
 
         //물리판정
         for (int i = 0; i < objects.size(); i++)
         {
+            if (!objects[i]->getIsActive())
+            {
+                continue;
+            }
             objects[i]->applyPhysics(deltaTime);
             for (int j = i + 1; j < objects.size(); j++)
             {
-                //물체가 닿았는지
-                if (objects[i]->isCollisionEnter(*objects[j]))
+                if (!objects[j]->getIsActive())
                 {
-                    //std::cout << deltaTime << '\n';
+                    continue;
+                }
+                
+                //물체가 닿았는지
+                if (objects[i]->isCollisionEnter(objects[j]))
+                {
                     objects[i]->addRepulsion(deltaTime);
                     objects[j]->addRepulsion(deltaTime);
 
@@ -195,14 +206,16 @@ void processInput(GLFWwindow* window)
         player->playerMove(camera.getRightPlayer(), deltaTime);
         camera.move(player->getPosition());
     }
+
+    //click debug
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
     {
-        if (objects.size() == 2)
+        if (player->getShootTime() + player->SHOOT_WAIT_TIME > lastFrame + deltaTime)
         {
-            std::cout << "create" << '\n';
-            SnowBullet * snowbullet = new SnowBullet(*snowShader, glm::vec3(0.5f, 0.5f, 0.5f));
-            objects.push_back(snowbullet);
+            return;
         }
+        player->setShootTime(lastFrame + deltaTime); //current
+        pool->createPoolObject();
     }
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)

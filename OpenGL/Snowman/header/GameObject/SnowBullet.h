@@ -3,8 +3,9 @@
 #include <../Snowman/header/GameObject/GameObject.h>
 
 class SnowBullet : public GameObject{
-    bool isGround = false;
 public:
+
+    //todo 물체 닿으면 그냥 사라지는 기능도 구현해야함. isCollider 오버라이딩
     SnowBullet()
     {
         initSnowBullet();
@@ -17,8 +18,8 @@ public:
     {
         scale = glm::vec3(1.0f, 1.0f, 1.0f);
         position = glm::vec3(0.0f, 10.0f, 0.0f);
-        movement_speed = 10.0f;
-        isStatic = true;
+        velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+        isStatic = false;
 
         float* sphereVerts = NULL;
 
@@ -43,6 +44,11 @@ public:
 
     void drawGameObject(Camera& camera, glm::vec3 lightColor, glm::vec3 lightPos)
     {
+        if (!isActive)
+        {
+            return;
+        }
+
         float pi = acosf(-1.0f);
         shader->use();
         //fs
@@ -51,18 +57,16 @@ public:
 
         //scale = glm::vec3(50.0f, 50.0f, 50.0f);
 
-        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 0.0f, 0.0f));
+        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, -0.5f, 0.0f));
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형 형태로 그려라
 
     }
 
-    void SetIsGround(bool isGround)
+    //override
+    void addRepulsion(float deltaTime)
     {
-        this->isGround = isGround;
-    }
-    bool GetIsGround()
-    {
-        return isGround;
+        std::cout << " qwrqw" << '\n';
+        this->isActive = false;
     }
 };
 

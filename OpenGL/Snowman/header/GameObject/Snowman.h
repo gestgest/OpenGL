@@ -5,9 +5,12 @@
 class Snowman : public GameObject{
     bool isGround = false;
 
+    float shootTime = 0;
     //높이는 4
 
 public:
+    const float SHOOT_WAIT_TIME = 0.5f;
+
     Snowman()
     {
         initSnowman();
@@ -23,6 +26,7 @@ public:
 
         movement_speed = 10.0f;
         isStatic = false;
+        isActive = true;
 
         float* sphereVerts = NULL;
 
@@ -142,10 +146,10 @@ public:
         // light properties
         shader->setVec3("objectColor", color);
 
-        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 0.0f, 0.0f));
+        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, -0.5f, 0.0f));
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형 형태로 그려라
 
-        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 2.0f, 0.0f));
+        GameObject::drawMiniGameObject(camera, lightColor, lightPos, color, glm::vec3(0, 1.5f, 0.0f));
         glDrawArrays(GL_TRIANGLES, 0, nSphereVert); //삼각형 형태로 그려라
     }
 
@@ -156,6 +160,15 @@ public:
     bool GetIsGround()
     {
         return isGround;
+    }
+
+    void setShootTime(float time)
+    {
+        this->shootTime = time;
+    }
+    float getShootTime()
+    {
+        return shootTime;
     }
 };
 
