@@ -13,6 +13,7 @@
 
 ![bandicam 2025-11-14 12-41-47-411](https://github.com/user-attachments/assets/66deea09-34ac-450c-a894-270a51c4e989)<br>
 - 화면 회전
+  - 플레이어를 중심으로 회전한다.
 
 ![bandicam 2025-11-14 12-51-48-630](https://github.com/user-attachments/assets/c35a1d30-8b8d-4a09-b1c8-32cd20b13e5d)<br>
 - 점프
