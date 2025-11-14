@@ -3,7 +3,7 @@
 
 ---
 ### Snowman
-눈사람이 돌아다니는 3d 게임이다.
+간단한 3인칭 시점 캐릭터 조작과 카메라 추적, 기본 렌더링 파이프라인을 구현한 C++/OpenGL 데모 프로젝트입니다.
 
 <img width="774" height="619" alt="image" src="https://github.com/user-attachments/assets/e7bf5bb5-d948-40ed-a646-4be353f44997" /><br>
 - 기본 화면
