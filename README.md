@@ -5,6 +5,12 @@
 ### Snowman
 간단한 3인칭 시점 캐릭터 조작과 카메라 추적, 기본 렌더링 파이프라인을 구현한 C++/OpenGL 데모 프로젝트입니다.
 
+구현한 기술
+- 오브젝트 충돌 감지 알고리즘
+- 중력 가속도 
+- 3인칭 시점 
+- 플레이어 움직임
+
 <img width="774" height="619" alt="image" src="https://github.com/user-attachments/assets/e7bf5bb5-d948-40ed-a646-4be353f44997" /><br>
 - 기본 화면
 
