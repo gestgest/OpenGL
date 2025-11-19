@@ -291,7 +291,10 @@ public:
             return;
         }
         //velocity *= COR; //반발계수
-        velocity *= 0;
+        if (velocity.y < 0)
+        {
+            velocity *= 0;
+        }
     }
 
     void applyPhysics(float deltaTime)
