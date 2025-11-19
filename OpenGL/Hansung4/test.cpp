@@ -42,6 +42,61 @@ float lastFrame = 0.0f;
 /// </summary>
 /// <returns></returns>
 
+void drawObjects(Shader& shader, unsigned int& diffuseMap, unsigned int& normalMap)
+{
+	// configure view/projection matrices
+	glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+	glm::mat4 view = camera.GetViewMatrix();
+
+	// lighting info
+	// -------------
+	glm::vec3 lightPos(5.0f, 5.0f, 5.0f);
+
+	shader.use();
+	shader.setMat4("projection", projection);
+	shader.setMat4("view", view);
+
+	shader.setVec3("viewPos", camera.Position);
+	shader.setVec3("lightPos", lightPos);
+
+	//texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, normalMap);
+
+	
+	glm::vec3 rotateAxis[6] = {
+		{1.0f, 0.0f, 0.0f},
+		{1.0f, 0.0f, 0.0f}, 
+		{1.0f, 0.0f, 0.0f}, 
+		{1.0f, 0.0f, 0.0f}, 
+		{0.0f, 1.0f, 0.0f},
+		{0.0f, 1.0f, 0.0f} 
+	};
+
+	float rotateAngle[6] = {
+		0.0f,
+		90.0f,
+		180.0f,
+		270.0f,
+		90.0f,
+		270.0f
+	};
+
+	for (int i = 0; i < 6; i++)
+	{
+		// render normal-mapped quad
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+		model = glm::rotate(model, glm::radians(rotateAngle[i]), glm::normalize(rotateAxis[i]));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		shader.setMat4("model", model);
+		renderQuad();
+	}
+
+}
 int main()
 {
 	// glfw: initialize and configure
@@ -56,8 +111,9 @@ int main()
 #endif
 
 	// glfw window creation
-	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+	const char title_name[] = { 50,48,55,49,51,55,53,32,236,149,136,236,167,132,237,152,129,0 };
+
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, title_name, NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -90,18 +146,15 @@ int main()
 
 	// load textures
 	// -------------
-	unsigned int diffuseMap = loadTexture("../Hansung4/textures/brickwall.jpg");
-	unsigned int normalMap = loadTexture("../Hansung4/textures/brickwall_normal.jpg");
+	unsigned int diffuseMap = loadTexture("../Hansung4/textures/snow.png");
+	unsigned int normalMap = loadTexture("../Hansung4/textures/snow_normal.png");
 
-	// shader configuration
+	// shader configuration => id
 	// --------------------
 	shader.use();
 	shader.setInt("diffuseMap", 0);
 	shader.setInt("normalMap", 1);
 
-	// lighting info
-	// -------------
-	glm::vec3 lightPos(0.5f, 1.0f, 0.3f);
 
 	// render loop
 	// -----------
@@ -122,36 +175,12 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// configure view/projection matrices
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
+		//여기서부터
+		drawObjects(shader, diffuseMap, normalMap);
 
-		shader.use();
-		shader.setMat4("projection", projection);
-		shader.setMat4("view", view);
+		//glm::rotate(model, glm::radians(90.0f),
 
-		// render normal-mapped quad
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0))); // rotate the quad to show normal mapping from multiple directions
-		shader.setMat4("model", model);
-		shader.setVec3("viewPos", camera.Position);
-		shader.setVec3("lightPos", lightPos);
-
-		//texture
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffuseMap);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, normalMap);
-		renderQuad(); //init => 그러면서 그리는 함수
-
-		// render light source (simply re-renders a smaller plane at the light's position for debugging/visualization)
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(1.0f));
-		shader.setMat4("model", model);
-		renderQuad();
-
-
+		// rotate the quad to show normal mapping from multiple directions ★
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -172,7 +201,7 @@ void renderQuad()
 
 	if (quadVAO == 0)
 	{
-		// positions
+		// positions => 크기는 2
 		glm::vec3 pos1(-1.0f, 1.0f, 0.0f);
 		glm::vec3 pos2(-1.0f, -1.0f, 0.0f);
 		glm::vec3 pos3(1.0f, -1.0f, 0.0f);

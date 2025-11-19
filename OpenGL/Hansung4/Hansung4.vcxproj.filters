@@ -36,6 +36,9 @@
     <ClCompile Include="src\glad.c">
       <Filter>소스 파일\Library</Filter>
     </ClCompile>
+    <ClCompile Include="normal_test.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\KHR\khrplatform.h">
