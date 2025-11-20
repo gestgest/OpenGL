@@ -109,5 +109,23 @@
     <None Include="src\vs\normal_mapping.vs">
       <Filter>소스 파일\vs</Filter>
     </None>
+    <None Include="src\vs\80.1.shadow_mapping.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\vs\80.1.shadow_mapping_depth.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\vs\80.1.debug_quad.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\fs\80.1.shadow_mapping_depth.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\fs\80.1.debug_quad_depth.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\fs\80.1.shadow_mapping.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
   </ItemGroup>
 </Project>
