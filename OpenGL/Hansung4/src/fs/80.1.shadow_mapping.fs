@@ -26,7 +26,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     float closestDepth = texture(shadowMap, projCoords.xy).r; //=> 그림에서의 g값? z값?
     
     // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z -0.15; //d
+    float currentDepth = projCoords.z -0.05; //d 0.0045
 
     // check whether current frag pos is in shadow
     float shadow = currentDepth > closestDepth  ? 1.0 : 0.0; 

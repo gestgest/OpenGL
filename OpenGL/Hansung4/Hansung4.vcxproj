@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClCompile Include="human.cpp" />
     <ClCompile Include="normal_test.cpp" />
+    <ClCompile Include="shadow.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\solarsystem_sun_2planets_hw.cpp" />
     <ClCompile Include="test.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="header\camera.h" />
     <ClInclude Include="header\homework3.h" />
     <ClInclude Include="header\j13.human.h" />
+    <ClInclude Include="header\tiny_obj_loader.h" />
     <ClInclude Include="header\shader.h" />
   </ItemGroup>
   <ItemGroup>
