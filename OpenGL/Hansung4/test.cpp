@@ -223,7 +223,9 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
 
+        glCullFace(GL_FRONT);
         renderScene(shader);
+        glCullFace(GL_BACK);
 
 
         // render Depth map to quad for visual debugging
