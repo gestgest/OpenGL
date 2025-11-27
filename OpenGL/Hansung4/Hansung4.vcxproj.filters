@@ -133,5 +133,29 @@
     <None Include="src\fs\80.1.shadow_mapping.fs">
       <Filter>소스 파일\fs</Filter>
     </None>
+    <None Include="src\vs\60.2.cubmaps.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\vs\60.3.teapot.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\vs\60.1.cubmaps.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\vs\60.1.skybox.vs">
+      <Filter>소스 파일\vs</Filter>
+    </None>
+    <None Include="src\fs\60.1.cubmaps.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\fs\60.1.skybox.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\fs\60.2.cubmaps.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\fs\60.3.teapot.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
   </ItemGroup>
 </Project>
