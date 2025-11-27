@@ -223,11 +223,6 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, teapot.nVertNum);
 		glBindVertexArray(0);
 
-<<<<<<< Updated upstream
-        glCullFace(GL_FRONT);
-        renderScene(shader);
-        glCullFace(GL_BACK);
-=======
 		//GL_LEQUAL는 depth가 1인 경우도 그려줘
 		// draw skybox as last => 
 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -243,7 +238,6 @@ int main()
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS); // set depth function back to **default**
 		//depth가 1인 애들은 안 그린다
->>>>>>> Stashed changes
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
