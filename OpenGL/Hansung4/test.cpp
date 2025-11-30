@@ -21,6 +21,8 @@
 #include <vector>
 using namespace std;
 
+#define SPHERE_COUNT 3
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -28,6 +30,8 @@ void processInput(GLFWwindow* window);
 void init_sphere(float** vertices, int* nVert, int* nAttr);
 unsigned int loadTexture(const char* path);
 unsigned int loadCubemap(vector<std::string> faces);
+void init_sphere(float** vertices, int* nVert, int* nAttr);
+
 
 // settings
 const unsigned int SCR_WIDTH = 1600;
@@ -43,6 +47,17 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+class Sphere{
+public:
+	glm::vec3 position;
+	glm::vec3 scale;
+	void setSphere(glm::vec3 position, glm::vec3 scale)
+	{
+		this->position = position;
+		this->scale = scale;
+	}
+};
+
 int main()
 {
 	// glfw: initialize and configure
@@ -56,9 +71,9 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	// glfw window creation
-	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2071375", NULL, NULL);
+	const char title_name[] = { 50,48,55,49,51,55,53,32,236,149,136,236,167,132,237,152,129,0 };
+
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, title_name, NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -82,7 +97,6 @@ int main()
 	}
 
 	// configure global opengl state
-	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
 
 	// build and compile shaders
@@ -91,7 +105,6 @@ int main()
 	Shader skyboxShader("src/vs/60.1.skybox.vs", "src/fs/60.1.skybox.fs");
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
-	// ------------------------------------------------------------------
 	float skyboxVertices[] = {
 		// positions          
 		-1.0f,  1.0f, -1.0f,
@@ -137,6 +150,7 @@ int main()
 		 1.0f, -1.0f,  1.0f
 	};
 
+
 	// load teapot data 
 	std::vector <float> data;
 	Teapot teapot("models/teapot.vbo", data, 8);
@@ -155,6 +169,36 @@ int main()
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, teapot.nVertFloats * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
+	//-------------------------------------------------------------
+	//구
+	float* sphereVerts = NULL;
+	int nSphereVert, nSphereAttr;
+	Sphere spheres[SPHERE_COUNT];
+
+	spheres[0].setSphere(glm::vec3(2.0f, 0, 2.0f), glm::vec3(1, 1, 1));
+	spheres[1].setSphere(glm::vec3(-5.0f, 0, -5.0f), glm::vec3(1, 2, 1));
+	spheres[2].setSphere(glm::vec3(5.0f, 0, -5.0f), glm::vec3(1, 1, 1));
+
+	//vertex 갯수 : 19 * 40 * 6(삼각형 2개)  , 한 삼각형의 속성 갯수 : 8
+	init_sphere(&sphereVerts, &nSphereVert, &nSphereAttr);
+	unsigned int sphereVBO, sphereVAO;
+	glGenVertexArrays(1, &sphereVAO);
+
+	//버퍼 설정
+	glGenBuffers(1, &sphereVBO); //1만큼 사이즈 생성
+	glBindBuffer(GL_ARRAY_BUFFER, sphereVBO); //sphereVBO를 현재 작업할 버퍼로 활성화
+	glBufferData(GL_ARRAY_BUFFER, nSphereVert* nSphereAttr * sizeof(float), sphereVerts, GL_STATIC_DRAW);
+	glBindVertexArray(sphereVAO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0); //0번째 vertexAttribArray 활성화
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	free(sphereVerts);
+
+	//-------------------------------------------------------------
 	// skybox VAO
 	unsigned int skyboxVAO, skyboxVBO;
 	glGenVertexArrays(1, &skyboxVAO);
@@ -165,16 +209,17 @@ int main()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
+
 	// load textures
 	// -------------
 	vector<std::string> faces
 	{
-		"../Hansung4/textures/cube/right.jpg",
-		"../Hansung4/textures/cube/left.jpg",
-		"../Hansung4/textures/cube/top.jpg",
-		"../Hansung4/textures/cube/bottom.jpg",
-		"../Hansung4/textures/cube/front.jpg",
-		"../Hansung4/textures/cube/back.jpg"
+		"../Hansung4/textures/cube/new_right.jpg",
+		"../Hansung4/textures/cube/new_left.jpg",
+		"../Hansung4/textures/cube/new_top.jpg",
+		"../Hansung4/textures/cube/new_bottom.jpg",
+		"../Hansung4/textures/cube/new_front.jpg",
+		"../Hansung4/textures/cube/new_back.jpg"
 	};
 	unsigned int cubemapTexture = loadCubemap(faces);
 
@@ -209,22 +254,42 @@ int main()
 		teapotShader.use();
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		teapotShader.setMat4("model", model);
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		//teapotShader.setMat4("model", model);
 		teapotShader.setMat4("view", view);
 		teapotShader.setMat4("projection", projection);
 		teapotShader.setVec3("eyePos", camera.Position);
+		teapotShader.setMat4("model", model);
+
 		// draw the teapot object
 		glBindVertexArray(teapotVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture); //큐브맵 형식으로 그림
 		glDrawArrays(GL_TRIANGLES, 0, teapot.nVertNum);
 		glBindVertexArray(0);
+		
 
+		for (int i = 0; i < SPHERE_COUNT; i++)
+		{
+			model = glm::mat4(1.0f);
+			//model = glm::rotate(model, glm::radians(-90.0f), \glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::translate(model, spheres[i].position);
+			model = glm::scale(model, spheres[i].scale);
+			teapotShader.setMat4("model", model);
+
+			// draw the sphere
+			glBindVertexArray(sphereVAO);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture); //큐브맵 형식으로 그림
+			glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
+			glBindVertexArray(0);
+		}
+
+
+
+		//------------------------------------------------------------------
+		//draw skybox as last => 
 		//GL_LEQUAL는 depth가 1인 경우도 그려줘
-		// draw skybox as last => 
 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 		skyboxShader.use();
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
@@ -240,7 +305,6 @@ int main()
 		//depth가 1인 애들은 안 그린다
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -376,35 +440,35 @@ void init_sphere(float** vertices, int* nVert, int* nAttr)
 		{
 			// p(u,v)
 			(*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 	// position (x,y,z)
-			(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal (x,y z)
 			(*vertices)[k++] = u / pi2;				(*vertices)[k++] = (v + 0.5f * pi) / pi;	// texture coords (x t)
+			(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal (x,y z)
 			// 이렇게 해서 8개의 속성 => nAttr
 
 
 			// p(u+du,v)
 			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	// position
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
 			(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
+			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
 
 			// p(u,v+dv)
 			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// position
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
 			(*vertices)[k++] = u / pi2;					(*vertices)[k++] = (v + dv + 0.5f * pi) / pi; // texture coords
+			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
 
 			// p(u+du,v)
 			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	// position
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
 			(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
+			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
 
 			// p(u+du,v+dv)
 			(*vertices)[k++] = cosf(v + dv) * cosf(u + du);	(*vertices)[k++] = cosf(v + dv) * sinf(u + du);	(*vertices)[k++] = sinf(v + dv); 	// position
-			(*vertices)[k++] = cosf(v + dv) * cosf(u + du);	(*vertices)[k++] = cosf(v + dv) * sinf(u + du);	(*vertices)[k++] = sinf(v + dv);	// normal
 			(*vertices)[k++] = (u + du) / pi2;				(*vertices)[k++] = (v + dv + 0.5f * pi) / pi;  // texture coords
+			(*vertices)[k++] = cosf(v + dv) * cosf(u + du);	(*vertices)[k++] = cosf(v + dv) * sinf(u + du);	(*vertices)[k++] = sinf(v + dv);	// normal
 
 			// p(u,v+dv)
 			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// position
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
 			(*vertices)[k++] = u / pi2;					(*vertices)[k++] = (v + dv + 0.5f * pi) / pi; // texture coords
+			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
 		}
 	}
 	// triangles around north pole and south pole
@@ -414,38 +478,38 @@ void init_sphere(float** vertices, int* nVert, int* nAttr)
 		// p(u,pi/2-dv)
 		v = 0.5f * pi - dv;
 		(*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 	// position
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal
 		(*vertices)[k++] = u / pi2;				(*vertices)[k++] = (v + 0.5f * pi) / pi;	// texture coords
+		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal
 
 		// p(u+du,pi/2-dv)
 		v = 0.5f * pi - dv;
 		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v); 	// position
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);		// normal
 		(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
+		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);		// normal
 
 		// p(u,pi/2) = (0, 1. 0)  ~ north pole
 		v = 0.5f * pi;
 		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	 // position
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		 // normal
 		(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = 1.0f;  // texture coords
+		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		 // normal
 
 		// triangles around south pole
 		// p(u,-pi/2) = (0, -1, 0)  ~ south pole
 		v = (-0.5f) * pi;
 		(*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 		// position
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);			// normal
 		(*vertices)[k++] = u / pi2;				(*vertices)[k++] = 0.0f; // texture coords
+		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);			// normal
 
 		// p(u+du,-pi/2+dv)
 		v = (-0.5f) * pi + dv;
 		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);	// position
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);	// normal
 		(*vertices)[k++] = (u + du) / pi2;				(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
+		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);	// normal
 
 		// p(u,-pi/2+dv)
 		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u); (*vertices)[k++] = sinf(v);	// position
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u); (*vertices)[k++] = sinf(v);	// normal
 		(*vertices)[k++] = u / pi2;					(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
+		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u); (*vertices)[k++] = sinf(v);	// normal
 	}
 }
 
