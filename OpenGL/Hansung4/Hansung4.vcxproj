@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cubemap.cpp" />
     <ClCompile Include="human.cpp" />
     <ClCompile Include="normal_test.cpp" />
     <ClCompile Include="shadow.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="header\shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\..\..\Downloads\j17.curve\j17.curve.vs" />
     <None Include="src\fs\14.2.lamp.fs" />
     <None Include="src\fs\14.2.teapot.fs" />
     <None Include="src\fs\60.1.cubmaps.fs" />
@@ -155,6 +157,7 @@
     <None Include="src\fs\80.1.debug_quad_depth.fs" />
     <None Include="src\fs\80.1.shadow_mapping.fs" />
     <None Include="src\fs\80.1.shadow_mapping_depth.fs" />
+    <None Include="src\fs\j17.curve.fs" />
     <None Include="src\fs\normal_mapping.fs" />
     <None Include="src\fs\70.1.particle.fs" />
     <None Include="src\fs\ground.fs" />

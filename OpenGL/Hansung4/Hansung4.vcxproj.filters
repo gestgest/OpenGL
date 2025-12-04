@@ -42,6 +42,9 @@
     <ClCompile Include="shadow.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="cubemap.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\KHR\khrplatform.h">
@@ -156,6 +159,12 @@
     </None>
     <None Include="src\fs\60.3.teapot.fs">
       <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="src\fs\j17.curve.fs">
+      <Filter>소스 파일\fs</Filter>
+    </None>
+    <None Include="..\..\..\..\..\..\Downloads\j17.curve\j17.curve.vs">
+      <Filter>소스 파일\vs</Filter>
     </None>
   </ItemGroup>
 </Project>

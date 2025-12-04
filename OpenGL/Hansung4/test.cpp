@@ -5,58 +5,36 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
-
-#define STB_IMAGE_IMPLEMENTATION
-//std_image.h를 이용해서 이미지 열려면 위에 이거 정의해야함
-#include <std_image.h>
-
 #include <../Hansung4/header/shader.h>
 #include <../Hansung4/header/camera.h>
-//#include <learnopengl/model.h>
 
 #include "header/teapot_loader.h"
-
-#include <iostream>
-#include <vector>
-using namespace std;
-
-#define SPHERE_COUNT 3
+#include <stdlib.h>"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
-void init_sphere(float** vertices, int* nVert, int* nAttr);
-unsigned int loadTexture(const char* path);
-unsigned int loadCubemap(vector<std::string> faces);
-void init_sphere(float** vertices, int* nVert, int* nAttr);
 
+// curve
+glm::vec3 BezierCrvEval(float t);	// Cubic Bezier Curve
 
 // settings
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 1200;
+const unsigned int SCR_WIDTH = 1000;
+const unsigned int SCR_HEIGHT = 1000;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-float lastX = (float)SCR_WIDTH / 2.0;
-float lastY = (float)SCR_HEIGHT / 2.0;
+Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-class Sphere{
-public:
-	glm::vec3 position;
-	glm::vec3 scale;
-	void setSphere(glm::vec3 position, glm::vec3 scale)
-	{
-		this->position = position;
-		this->scale = scale;
-	}
-};
+// lighting
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int main()
 {
@@ -68,12 +46,12 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
 
-	const char title_name[] = { 50,48,55,49,51,55,53,32,236,149,136,236,167,132,237,152,129,0 };
-
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, title_name, NULL, NULL);
+	// glfw window creation
+	// --------------------
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2071375", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -97,142 +75,68 @@ int main()
 	}
 
 	// configure global opengl state
+	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
 
-	// build and compile shaders
-	// -------------------------
-	Shader teapotShader("src/vs/60.3.teapot.vs", "src/fs/60.3.teapot.fs");
-	Shader skyboxShader("src/vs/60.1.skybox.vs", "src/fs/60.1.skybox.fs");
+	// build and compile our shader zprogram
+	// ------------------------------------
+	Shader teapotShader1("src/vs/14.2.teapot.vs", "src/fs/14.2.teapot.fs");
+	Shader curveShader("src/vs/j17.curve.vs", "src/fs/j17.curve.fs");
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
-	float skyboxVertices[] = {
-		// positions          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
+	int crvVertNum = 100;
+	float crvVertices[300];
+	glm::vec3 crvVert;
 
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
+	int j = 0;
+	float t = 0.0f;
 
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
+	//0 ~ 100
+	for (int i = 0; i < crvVertNum; i++)
+	{
+		t = (float)i / (crvVertNum - 1);
 
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
+		crvVert = BezierCrvEval(t);
+		crvVertices[j++] = crvVert.x;
+		crvVertices[j++] = crvVert.y;
+		crvVertices[j++] = crvVert.z;
+	}
 
-		-1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
+	// curve VAO
+	unsigned int curveVAO, curveVBO;
+	glGenVertexArrays(1, &curveVAO);
+	glGenBuffers(1, &curveVBO);
+	glBindVertexArray(curveVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, curveVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(crvVertices), &crvVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f
-	};
-
-
-	// load teapot data 
+	// teapot VAO and VBO
 	std::vector <float> data;
 	Teapot teapot("models/teapot.vbo", data, 8);
-	// teapot VAO and VBO
+
 	unsigned int teapotVBO, teapotVAO;
 	glGenVertexArrays(1, &teapotVAO);
 	glGenBuffers(1, &teapotVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, teapotVBO);
 	glBufferData(GL_ARRAY_BUFFER, teapot.nVertNum * teapot.nVertFloats * sizeof(float), &data[0], GL_STATIC_DRAW);
-	glBindVertexArray(teapotVAO);
 
+	glBindVertexArray(teapotVAO);
+	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, teapot.nVertFloats * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	// texCoord attribute
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, teapot.nVertFloats * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	// normal attribute
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, teapot.nVertFloats * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-	//-------------------------------------------------------------
-	//구
-	float* sphereVerts = NULL;
-	int nSphereVert, nSphereAttr;
-	Sphere spheres[SPHERE_COUNT];
-
-	spheres[0].setSphere(glm::vec3(2.0f, 0, 2.0f), glm::vec3(1, 1, 1));
-	spheres[1].setSphere(glm::vec3(-5.0f, 0, -5.0f), glm::vec3(1, 2, 1));
-	spheres[2].setSphere(glm::vec3(5.0f, 0, -5.0f), glm::vec3(1, 1, 1));
-
-	//vertex 갯수 : 19 * 40 * 6(삼각형 2개)  , 한 삼각형의 속성 갯수 : 8
-	init_sphere(&sphereVerts, &nSphereVert, &nSphereAttr);
-	unsigned int sphereVBO, sphereVAO;
-	glGenVertexArrays(1, &sphereVAO);
-
-	//버퍼 설정
-	glGenBuffers(1, &sphereVBO); //1만큼 사이즈 생성
-	glBindBuffer(GL_ARRAY_BUFFER, sphereVBO); //sphereVBO를 현재 작업할 버퍼로 활성화
-	glBufferData(GL_ARRAY_BUFFER, nSphereVert* nSphereAttr * sizeof(float), sphereVerts, GL_STATIC_DRAW);
-	glBindVertexArray(sphereVAO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0); //0번째 vertexAttribArray 활성화
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, nSphereAttr * sizeof(float), (void*)(5 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	free(sphereVerts);
-
-	//-------------------------------------------------------------
-	// skybox VAO
-	unsigned int skyboxVAO, skyboxVBO;
-	glGenVertexArrays(1, &skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
-	glBindVertexArray(skyboxVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-
-	// load textures
-	// -------------
-	vector<std::string> faces
-	{
-		"../Hansung4/textures/cube/new_right.jpg",
-		"../Hansung4/textures/cube/new_left.jpg",
-		"../Hansung4/textures/cube/new_top.jpg",
-		"../Hansung4/textures/cube/new_bottom.jpg",
-		"../Hansung4/textures/cube/new_front.jpg",
-		"../Hansung4/textures/cube/new_back.jpg"
-	};
-	unsigned int cubemapTexture = loadCubemap(faces);
-
-	// shader configuration
-	// --------------------
-	teapotShader.use();
-	teapotShader.setInt("skybox", 0);
-
-	skyboxShader.use();
-	skyboxShader.setInt("skybox", 0);
 
 	// render loop
 	// -----------
+	t = 0.0f;		// float dt = 0.01f;
 	while (!glfwWindowShouldClose(window))
 	{
 		// per-frame time logic
@@ -250,61 +154,63 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 		// be sure to activate shader when setting uniforms/drawing objects
-		teapotShader.use();
+		teapotShader1.use();
+		// view/projection transformations
+		//t += deltaTime;	// t += dt;
+		//*
+		//t += 0.1f;
+		//glm::vec3 crvVert;
+		//crvVert = glm::vec3(rad * cos(t * 2 * pi / crvVertNum), 0.0f, rad * sin(t * 2 * pi / crvVertNum));
+		//camera.Reset(crvVert, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) - crvVert);
+		//*/
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+
+		teapotShader1.setMat4("projection", projection);
+		teapotShader1.setMat4("view", view);
+		// eye position
+		teapotShader1.setVec3("eyePos", camera.Position);
+
+		// draw the teapot object 
+		// light properties
+		glm::vec3 lightColor(1.0, 1.0, 1.0);;
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence 
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influenc
+		teapotShader1.setVec3("light.ambient", ambientColor);
+		teapotShader1.setVec3("light.diffuse", diffuseColor);
+		teapotShader1.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		teapotShader1.setVec3("light.position", lightPos);
+		// material properties
+		teapotShader1.setVec3("material.ambient", 0.7f, 0.5f, 0.3f);
+		teapotShader1.setVec3("material.diffuse", 0.7f, 0.5f, 0.3f);
+		teapotShader1.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
+		teapotShader1.setFloat("material.shininess", 30.0f);
+		// world transformation
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 view = camera.GetViewMatrix();
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		teapotShader.setMat4("view", view);
-		teapotShader.setMat4("projection", projection);
-		teapotShader.setVec3("eyePos", camera.Position);
-		teapotShader.setMat4("model", model);
-
-		// draw the teapot object
+		teapotShader1.setMat4("model", model);
+		// render the teapot
+		glLineWidth(1.0);
 		glBindVertexArray(teapotVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture); //큐브맵 형식으로 그림
 		glDrawArrays(GL_TRIANGLES, 0, teapot.nVertNum);
-		glBindVertexArray(0);
-		
 
-		for (int i = 0; i < SPHERE_COUNT; i++)
-		{
-			model = glm::mat4(1.0f);
-			//model = glm::rotate(model, glm::radians(-90.0f), \glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::translate(model, spheres[i].position);
-			model = glm::scale(model, spheres[i].scale);
-			teapotShader.setMat4("model", model);
+		// draw the curve object
+		curveShader.use();
+		curveShader.setMat4("projection", projection);
+		curveShader.setMat4("view", view);
+		curveShader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
+		// world transformation
+		model = glm::mat4(1.0f);
+		curveShader.setMat4("model", model);
+		glLineWidth(3.0);
+		glBindVertexArray(curveVAO);
+		glDrawArrays(GL_LINE_STRIP, 0, crvVertNum);
 
-			// draw the sphere
-			glBindVertexArray(sphereVAO);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture); //큐브맵 형식으로 그림
-			glDrawArrays(GL_TRIANGLES, 0, nSphereVert);
-			glBindVertexArray(0);
-		}
-
-
-
-		//------------------------------------------------------------------
-		//draw skybox as last => 
-		//GL_LEQUAL는 depth가 1인 경우도 그려줘
-		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-		skyboxShader.use();
-		view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
-		skyboxShader.setMat4("view", view);
-		skyboxShader.setMat4("projection", projection);
-		// skybox cube
-		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		glDepthFunc(GL_LESS); // set depth function back to **default**
-		//depth가 1인 애들은 안 그린다
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -312,10 +218,12 @@ int main()
 	// optional: de-allocate all resources once they've outlived their purpose:
 	// ------------------------------------------------------------------------
 	glDeleteVertexArrays(1, &teapotVAO);
-	glDeleteVertexArrays(1, &skyboxVAO);
+	glDeleteVertexArrays(1, &curveVAO);
 	glDeleteBuffers(1, &teapotVBO);
-	glDeleteBuffers(1, &skyboxVBO);
+	glDeleteBuffers(1, &curveVBO);
 
+	// glfw: terminate, clearing all previously allocated GLFW resources.
+	// ------------------------------------------------------------------
 	glfwTerminate();
 	return 0;
 }
@@ -346,6 +254,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -373,185 +282,18 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	camera.ProcessMouseScroll(yoffset);
 }
 
-// utility function for loading a 2D texture from file
-// ---------------------------------------------------
-unsigned int loadTexture(char const* path)
+
+//3차 베지어 커브 식
+glm::vec3 BezierCrvEval(float t)	// Cubic Bezier Curve
 {
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
+	glm::vec3 P[4] = { {-2.0f, 0.0f, 0.0f}, {-1.0f, 1.0f, 0.0f}, {2.0f, -2.0f, 0.0f}, {3.0f, 0.0f, 0.0f} };
 
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format;
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
-	}
-
-	return textureID;
-}
-
-
-// 매개변수 방정식으로 원 그리는 함수 => 
-void init_sphere(float** vertices, int* nVert, int* nAttr)
-{
-	//nAttr : 8
-	// sphere: set up vertex data and configure vertex attributes
-	float pi = acosf(-1.0f);	// pi = 3.14152...
-	float pi2 = 2.0f * pi;
-	int nu = 40, nv = 20;
-	const double du = pi2 / nu;
-	const double dv = pi / nv;
-
-	//19 * 40 * 6
-	*nVert = (nv - 1) * nu * 6;		// two triangles
-	*nAttr = 8;
-	*vertices = (float*)malloc(sizeof(float) * (*nVert) * (*nAttr));
-
-	float u, v;
-	int k = 0;
-
-	v = 0.0f;
-	u = 0.0f;
-	for (v = (-0.5f) * pi + dv; v < 0.5f * pi - dv; v += dv)
-	{
-		for (u = 0.0f; u < pi2; u += du)
-		{
-			// p(u,v)
-			(*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 	// position (x,y,z)
-			(*vertices)[k++] = u / pi2;				(*vertices)[k++] = (v + 0.5f * pi) / pi;	// texture coords (x t)
-			(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal (x,y z)
-			// 이렇게 해서 8개의 속성 => nAttr
-
-
-			// p(u+du,v)
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	// position
-			(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
-
-			// p(u,v+dv)
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// position
-			(*vertices)[k++] = u / pi2;					(*vertices)[k++] = (v + dv + 0.5f * pi) / pi; // texture coords
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
-
-			// p(u+du,v)
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	// position
-			(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-			(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		// normal
-
-			// p(u+du,v+dv)
-			(*vertices)[k++] = cosf(v + dv) * cosf(u + du);	(*vertices)[k++] = cosf(v + dv) * sinf(u + du);	(*vertices)[k++] = sinf(v + dv); 	// position
-			(*vertices)[k++] = (u + du) / pi2;				(*vertices)[k++] = (v + dv + 0.5f * pi) / pi;  // texture coords
-			(*vertices)[k++] = cosf(v + dv) * cosf(u + du);	(*vertices)[k++] = cosf(v + dv) * sinf(u + du);	(*vertices)[k++] = sinf(v + dv);	// normal
-
-			// p(u,v+dv)
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// position
-			(*vertices)[k++] = u / pi2;					(*vertices)[k++] = (v + dv + 0.5f * pi) / pi; // texture coords
-			(*vertices)[k++] = cosf(v + dv) * cosf(u);	(*vertices)[k++] = cosf(v + dv) * sinf(u);	(*vertices)[k++] = sinf(v + dv);	// normal
-		}
-	}
-	// triangles around north pole and south pole
-	for (u = 0.0f; u < pi2; u += du)
-	{
-		// triangles around north pole
-		// p(u,pi/2-dv)
-		v = 0.5f * pi - dv;
-		(*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 	// position
-		(*vertices)[k++] = u / pi2;				(*vertices)[k++] = (v + 0.5f * pi) / pi;	// texture coords
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);		// normal
-
-		// p(u+du,pi/2-dv)
-		v = 0.5f * pi - dv;
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v); 	// position
-		(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);		// normal
-
-		// p(u,pi/2) = (0, 1. 0)  ~ north pole
-		v = 0.5f * pi;
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v); 	 // position
-		(*vertices)[k++] = (u + du) / pi2;			(*vertices)[k++] = 1.0f;  // texture coords
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du);	(*vertices)[k++] = sinf(v);		 // normal
-
-		// triangles around south pole
-		// p(u,-pi/2) = (0, -1, 0)  ~ south pole
-		v = (-0.5f) * pi;
-		(*vertices)[k++] = cosf(v) * cosf(u); 	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v); 		// position
-		(*vertices)[k++] = u / pi2;				(*vertices)[k++] = 0.0f; // texture coords
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u);	(*vertices)[k++] = sinf(v);			// normal
-
-		// p(u+du,-pi/2+dv)
-		v = (-0.5f) * pi + dv;
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);	// position
-		(*vertices)[k++] = (u + du) / pi2;				(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-		(*vertices)[k++] = cosf(v) * cosf(u + du);	(*vertices)[k++] = cosf(v) * sinf(u + du); (*vertices)[k++] = sinf(v);	// normal
-
-		// p(u,-pi/2+dv)
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u); (*vertices)[k++] = sinf(v);	// position
-		(*vertices)[k++] = u / pi2;					(*vertices)[k++] = (v + 0.5f * pi) / pi; // texture coords
-		(*vertices)[k++] = cosf(v) * cosf(u);	(*vertices)[k++] = cosf(v) * sinf(u); (*vertices)[k++] = sinf(v);	// normal
-	}
-}
-
-
-// loads a cubemap texture from 6 individual texture faces
-// order:
-// +X (right)
-// -X (left)
-// +Y (top)
-// -Y (bottom)
-// +Z (front) 
-// -Z (back)
-// -------------------------------------------------------
-unsigned int loadCubemap(vector<std::string> faces)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID); //원래 2d만 썼는데 이번엔 3d
-
-	int width, height, nrChannels;
-
-	for (unsigned int i = 0; i < faces.size(); i++)
-	{
-		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-		if (data)
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			stbi_image_free(data);
-		}
-		else
-		{
-			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-
-	//필터링 하는 과정 : minmap
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return textureID;
+	float t2 = t * t;
+	float t3 = t * t * t;
+	float s = 1.0f - t;
+	float s2 = s * s;
+	float s3 = s * s * s;
+	glm::vec3 p = s3 * P[0] + 3.0f * t * s2 * P[1] + 3.0f * t2 * s * P[2] + t3 * P[3];
+	//glm::vec3 p = (1.0f - t) * (1.0f - t) * (1.0f - t) * P[0] + 3.0f * t * (1.0f - t) * (1.0f - t) * P[1] + 3.0f * t * t * (1.0f - t) * P[2] + t * t * t * P[3];
+	return p;
 }
